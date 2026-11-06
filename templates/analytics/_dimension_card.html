@@ -1,0 +1,33 @@
+{% load spark %}
+<div class="card p-5 no-break">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex items-start gap-3">
+      <span class="flex h-9 w-9 flex-none items-center justify-center rounded-xl"
+            style="background:{{ row.code|cat_tint }}; color:{{ row.code|cat_color }}" aria-hidden="true">
+        <i data-lucide="{{ row.icon_name }}" class="h-5 w-5"></i>
+      </span>
+      <div>
+        <p class="font-display text-lg font-semibold leading-tight text-ink">{{ row.name }}</p>
+        <p class="mt-0.5 flex items-center gap-1.5 text-[0.68rem] font-bold uppercase tracking-wide text-ink-mute">
+          {% if row.pillar == 'APTITUDE' %}
+            <span class="tag-dot" style="background:{{ row.code|cat_color }}"></span> Aptitude
+          {% else %}
+            <span class="tag-ring" style="border-color:{{ row.code|cat_color }}"></span> Interest
+          {% endif %}
+        </p>
+      </div>
+    </div>
+    <span class="flex-none rounded-full px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wide {{ row.badge_class }}">
+      {{ row.status }}
+    </span>
+  </div>
+
+  <div class="mt-4 flex items-center gap-3">
+    <div class="progress-track flex-1">
+      <div class="progress-fill" style="width: {{ row.score }}%; background: {{ row.code|cat_color }}"></div>
+    </div>
+    <span class="w-10 flex-none text-right font-display text-lg font-semibold text-ink">{{ row.score }}</span>
+  </div>
+
+  <p class="mt-3 text-sm leading-relaxed text-ink-soft">{{ row.description }}</p>
+</div>

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign in{% endblock %}
+
+{% block content %}
+<section class="mx-auto grid max-w-5xl items-center gap-12 px-5 py-16 lg:grid-cols-2">
+
+  <div class="order-2 lg:order-1">
+    <p class="eyebrow">Welcome back</p>
+    <h1 class="mt-3 font-display text-4xl font-semibold tracking-tight text-ink">Sign in to KidSpark</h1>
+    <p class="mt-3 text-ink-soft">
+      Your children's profiles, in-progress assessments and past reports are all waiting.
+    </p>
+
+    <div class="card mt-8 p-6 sm:p-8">
+      <form method="post" novalidate class="space-y-5">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="rounded-xl border border-coral-500/30 bg-coral-100 px-4 py-3 text-sm font-medium text-coral-500">
+            {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        {% endif %}
+
+        <div>
+          <label for="{{ form.username.id_for_label }}" class="mb-1.5 block text-sm font-semibold text-ink">Username</label>
+          {{ form.username }}
+          {% for error in form.username.errors %}<p class="mt-1 text-sm text-coral-500">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div>
+          <label for="{{ form.password.id_for_label }}" class="mb-1.5 block text-sm font-semibold text-ink">Password</label>
+          {{ form.password }}
+          {% for error in form.password.errors %}<p class="mt-1 text-sm text-coral-500">{{ error }}</p>{% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full">Sign in</button>
+      </form>
+    </div>
+
+    <p class="mt-5 text-sm text-ink-soft">
+      No account yet?
+      <a href="{% url 'accounts:register' %}" class="font-semibold text-spark-600 underline decoration-spark-200 decoration-2 underline-offset-2 hover:decoration-spark-500">Create one in a minute</a>.
+    </p>
+  </div>
+
+  <!-- Evaluator shortcut: mirrors the landing page so the demo is never more
+       than one click from anywhere in the auth flow. -->
+  <aside class="order-1 lg:order-2">
+    <div class="card bg-ink p-7 text-white">
+      <div class="spark-mark" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <p class="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-spark-200">For evaluators</p>
+      <h2 class="mt-2 font-display text-2xl font-semibold">Skip the sign-up</h2>
+      <p class="mt-3 text-sm leading-relaxed text-spark-100">
+        The demo account already holds one child with a completed 24-question report and a
+        second child with no sessions, so you can run a live quiz immediately.
+      </p>
+      <form method="post" action="{% url 'accounts:demo_login' %}" class="mt-6">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sunbeam w-full">Sign in as {{ demo_username }}</button>
+      </form>
+      <p class="mt-3 text-xs text-spark-200">
+        Credentials: {{ demo_username }} / {{ demo_password }}
+      </p>
+    </div>
+  </aside>
+
+</section>
+{% endblock %}

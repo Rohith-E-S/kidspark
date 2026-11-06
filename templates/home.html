@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+{% load spark %}
+
+{% block title %}Map how your child thinks{% endblock %}
+
+{% block content %}
+
+<!-- ============================ HERO ====================================
+     The thesis is the product itself: eight dimensions arranged in the ring
+     we use as our mark, with the two pillars called out by dot vs ring.
+     ===================================================================== -->
+<section class="paper-grid border-b border-ink/5">
+  <div class="mx-auto grid max-w-6xl items-center gap-14 px-5 py-16 lg:grid-cols-[1.05fr_1fr] lg:py-24">
+
+    <div>
+      <p class="eyebrow">Aptitude + interest assessment · ages 6–16</p>
+      <h1 class="mt-4 font-display text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-[3.4rem]">
+        Find out how your child
+        <span class="relative whitespace-nowrap">
+          <span class="relative z-10">thinks</span>
+          <span aria-hidden="true" class="absolute inset-x-0 bottom-1 z-0 h-3 bg-sunbeam-400"></span>
+        </span>
+        — and what they'd love to do with it.
+      </h1>
+
+      <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
+        KidSpark runs one 24-question session across <strong class="font-semibold text-ink">two pillars</strong>:
+        twelve brain puzzles that are scored right or wrong, and twelve "what do you love?"
+        scenarios scored by preference. The two halves combine into a persona, a radar of
+        strengths, and a weekly plan you can actually run at home.
+      </p>
+
+      <div class="mt-9 flex flex-wrap items-center gap-3">
+        <form method="post" action="{% url 'accounts:demo_login' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary btn-lg">
+            <i data-lucide="play" class="h-5 w-5"></i>
+            Instant demo login
+          </button>
+        </form>
+        <a href="{% url 'accounts:register' %}" class="btn btn-ghost btn-lg">
+          Create a parent account
+        </a>
+      </div>
+
+      <p class="mt-4 text-sm text-ink-mute">
+        The demo button signs you in as <span class="font-semibold text-ink-soft">{{ demo_username }}</span>
+        with a finished report already waiting, plus a second child ready for a live trial.
+      </p>
+
+      <dl class="mt-10 grid max-w-lg grid-cols-3 gap-4 border-t border-ink/10 pt-6">
+        <div>
+          <dt class="eyebrow">Dimensions</dt>
+          <dd class="mt-1 font-display text-3xl font-semibold text-spark-600">8</dd>
+        </div>
+        <div>
+          <dt class="eyebrow">Questions</dt>
+          <dd class="mt-1 font-display text-3xl font-semibold text-spark-600">24</dd>
+        </div>
+        <div>
+          <dt class="eyebrow">Time needed</dt>
+          <dd class="mt-1 font-display text-3xl font-semibold text-spark-600">15<span class="text-lg"> min</span></dd>
+        </div>
+      </dl>
+    </div>
+
+    <!-- The spark dial -->
+    <div class="relative mx-auto w-full max-w-md">
+      <div class="card p-5 sm:p-7">
+        <div class="grid grid-cols-3 gap-3">
+          {% for code, short, pillar in dimensions %}
+            <div class="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-ink/5 bg-paper px-1 py-4"
+                 style="background:{{ code|cat_tint }}">
+              <i data-lucide="{{ code|cat_icon }}" class="h-6 w-6" style="color:{{ code|cat_color }}" aria-hidden="true"></i>
+              <span class="text-[0.68rem] font-bold uppercase tracking-wider" style="color:{{ code|cat_color }}">{{ short }}</span>
+              <span class="flex items-center gap-1 text-[0.58rem] font-semibold uppercase tracking-wide text-ink-mute">
+                {% if pillar == 'APTITUDE' %}
+                  <span class="tag-dot" style="background:{{ code|cat_color }}"></span> Scored
+                {% else %}
+                  <span class="tag-ring" style="border-color:{{ code|cat_color }}"></span> Preference
+                {% endif %}
+              </span>
+            </div>
+
+            {% if forloop.counter == 4 %}
+              {# centre of the ring: the assessment itself #}
+              <div class="flex flex-col items-center justify-center gap-1 rounded-2xl bg-ink px-2 py-4 text-center text-white">
+                <span class="font-display text-2xl font-semibold leading-none">24</span>
+                <span class="text-[0.6rem] font-semibold uppercase tracking-widest text-spark-200">questions</span>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <div class="mt-5 flex items-center justify-between gap-3 border-t border-ink/5 pt-4 text-xs font-semibold text-ink-mute">
+          <span class="flex items-center gap-1.5"><span class="tag-dot bg-spark-500"></span> Part 1 · Brain puzzles (right/wrong)</span>
+          <span class="flex items-center gap-1.5"><span class="tag-ring border-sunbeam-500"></span> Part 2 · Preferences</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================ HOW IT WORKS ========================== -->
+<section class="mx-auto max-w-6xl px-5 py-16">
+  <p class="eyebrow">Three steps</p>
+  <h2 class="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+    One sitting, then a plan you can start on Monday.
+  </h2>
+
+  <ol class="mt-10 grid gap-6 md:grid-cols-3">
+    <li class="card card-lift p-6">
+      <span class="font-display text-sm font-semibold text-spark-400">Step 1</span>
+      <h3 class="mt-2 font-display text-xl font-semibold text-ink">Add the child</h3>
+      <p class="mt-2 text-ink-soft">
+        Name, age and grade. Age picks the question difficulty band and the tone of the
+        recommendations — a 7-year-old and a 15-year-old get different homework.
+      </p>
+    </li>
+    <li class="card card-lift p-6">
+      <span class="font-display text-sm font-semibold text-spark-400">Step 2</span>
+      <h3 class="mt-2 font-display text-xl font-semibold text-ink">Take the 24 questions</h3>
+      <p class="mt-2 text-ink-soft">
+        Big tappable cards with emoji hints. Part 1 is puzzles, Part 2 is preferences. The
+        child can pause halfway and resume later — nothing is lost.
+      </p>
+    </li>
+    <li class="card card-lift p-6">
+      <span class="font-display text-sm font-semibold text-spark-400">Step 3</span>
+      <h3 class="mt-2 font-display text-xl font-semibold text-ink">Read the report together</h3>
+      <p class="mt-2 text-ink-soft">
+        A radar of cognitive strengths, a bar chart of interests, a named persona, and four
+        concrete activities plus four future pathways. Printable for school meetings.
+      </p>
+    </li>
+  </ol>
+</section>
+
+<!-- ============================ PILLARS =============================== -->
+<section class="border-y border-ink/5 bg-white">
+  <div class="mx-auto grid max-w-6xl gap-10 px-5 py-16 lg:grid-cols-2">
+    <div>
+      <p class="eyebrow flex items-center gap-2">
+        <span class="tag-dot bg-spark-500"></span> Part 1
+      </p>
+      <h2 class="mt-3 font-display text-2xl font-semibold text-ink sm:text-3xl">Cognitive aptitude</h2>
+      <p class="mt-3 max-w-xl text-ink-soft">
+        Twelve questions with one right answer, each carrying a difficulty weight from 1 to 3.
+        Scores are normalised to 0–100 per dimension, so hard questions are worth more without
+        making the result unreadable.
+      </p>
+      <ul class="mt-6 grid gap-3 sm:grid-cols-2">
+        <li class="flex items-start gap-3 rounded-2xl bg-paper p-4">
+          <span class="flex h-9 w-9 flex-none items-center justify-center rounded-xl" style="background:{{ 'LOGICAL'|cat_tint }}">
+            <i data-lucide="puzzle" class="h-5 w-5" style="color:{{ 'LOGICAL'|cat_color }}"></i>
+          </span>
+          <div>
+            <p class="font-semibold text-ink">Logical &amp; Mathematical</p>
+            <p class="text-sm text-ink-soft">Patterns, number puzzles, deductions.</p>
+          </div>
+        </li>
+        <li class="flex items-start gap-3 rounded-2xl bg-paper p-4">
+          <span class="flex h-9 w-9 flex-none items-center justify-center rounded-xl" style="background:{{ 'VERBAL'|cat_tint }}">
+            <i data-lucide="book-open" class="h-5 w-5" style="color:{{ 'VERBAL'|cat_color }}"></i>
+          </span>
+          <div>
+            <p class="font-semibold text-ink">Verbal &amp; Linguistic</p>
+            <p class="text-sm text-ink-soft">Vocabulary, comprehension, word links.</p>
+          </div>
+        </li>
+        <li class="flex items-start gap-3 rounded-2xl bg-paper p-4">
+          <span class="flex h-9 w-9 flex-none items-center justify-center rounded-xl" style="background:{{ 'SPATIAL'|cat_tint }}">
+            <i data-lucide="shapes" class="h-5 w-5" style="color:{{ 'SPATIAL'|cat_color }}"></i>
+          </span>
+          <div>
+            <p class="font-semibold text-ink">Spatial &amp; Visual</p>
+            <p class="text-sm text-ink-soft">Mental rotation, shape matching, memory.</p>
+          </div>
+        </li>
+        <li class="flex items-start gap-3 rounded-2xl bg-paper p-4">
+          <span class="flex h-9 w-9 flex-none items-center justify-center rounded-xl" style="background:{{ 'CRITICAL'|cat_tint }}">
+            <i data-lucide="lightbulb" class="h-5 w-5" style="color:{{ 'CRITICAL'|cat_color }}"></i>
+          </span>
+          <div>
+            <p class="font-semibold text-ink">Critical &amp; Analytical</p>
+            <p class="text-sm text-ink-soft">Cause and effect, everyday reasoning.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div>
+      <p class="eyebrow flex items-center gap-2">
+        <span class="tag-ring border-sunbeam-500"></span> Part 2
+      </p>
+      <h2 class="mt-3 font-display text-2xl font-semibold text-ink sm:text-3xl">Areas of interest</h2>
+      <p class="mt-3 max-w-xl text-ink-soft">
+        Twelve scenarios with no wrong answer. Each option carries an affinity weight —
+        <span class="font-semibold text-ink">love it</span>,
+        <span class="font-semibold text-ink">sometimes</span>, or
+        <span class="font-semibold text-ink">not for me</span> — which is what turns a child's
+        enjoyment into a usable preference score.
+      </p>
+      <ul class="mt-6 grid gap-3 sm:grid-cols-2">
+        <li class="flex items-start gap-3 rounded-2xl bg-paper p-4">
+          <span class="flex h-9 w-9 flex-none items-center justify-center rounded-xl" style="background:{{ 'STEM'|cat_tint }}">
+            <i data-lucide="flask-conical" class="h-5 w-5" style="color:{{ 'STEM'|cat_color }}"></i>
+          </span>
+          <div>
+            <p class="font-semibold text-ink">STEM &amp; Discovery</p>
+            <p class="text-sm text-ink-soft">Experiments, coding, how things work.</p>
+          </div>
+        </li>
+        <li class="flex items-start gap-3 rounded-2xl bg-paper p-4">
+          <span class="flex h-9 w-9 flex-none items-center justify-center rounded-xl" style="background:{{ 'ARTS'|cat_tint }}">
+            <i data-lucide="palette" class="h-5 w-5" style="color:{{ 'ARTS'|cat_color }}"></i>
+          </span>
+          <div>
+            <p class="font-semibold text-ink">Arts &amp; Creative Expression</p>
+            <p class="text-sm text-ink-soft">Drawing, music, storytelling, design.</p>
+          </div>
+        </li>
+        <li class="flex items-start gap-3 rounded-2xl bg-paper p-4">
+          <span class="flex h-9 w-9 flex-none items-center justify-center rounded-xl" style="background:{{ 'NATURE'|cat_tint }}">
+            <i data-lucide="leaf" class="h-5 w-5" style="color:{{ 'NATURE'|cat_color }}"></i>
+          </span>
+          <div>
+            <p class="font-semibold text-ink">Nature &amp; Outdoors</p>
+            <p class="text-sm text-ink-soft">Animals, environment, space, exploring.</p>
+          </div>
+        </li>
+        <li class="flex items-start gap-3 rounded-2xl bg-paper p-4">
+          <span class="flex h-9 w-9 flex-none items-center justify-center rounded-xl" style="background:{{ 'SOCIAL'|cat_tint }}">
+            <i data-lucide="users" class="h-5 w-5" style="color:{{ 'SOCIAL'|cat_color }}"></i>
+          </span>
+          <div>
+            <p class="font-semibold text-ink">Social &amp; Leadership</p>
+            <p class="text-sm text-ink-soft">Teamwork, helping, organising, talking.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CLOSING CTA =========================== -->
+<section class="mx-auto max-w-6xl px-5 py-20">
+  <div class="card relative overflow-hidden p-8 sm:p-12">
+    <div aria-hidden="true" class="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-spark-100"></div>
+    <div aria-hidden="true" class="pointer-events-none absolute -bottom-16 right-32 h-32 w-32 rounded-full bg-sunbeam-100"></div>
+    <div class="relative max-w-2xl">
+      <h2 class="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+        Every strong 8-point answer becomes a strength worth naming.
+      </h2>
+      <p class="mt-4 text-lg text-ink-soft">
+        Sixteen persona combinations, each with its own reading, its own weekly activities and
+        its own future pathways. Start with a name and an age.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">Create a free account</a>
+        <a href="{% url 'accounts:login' %}" class="btn btn-quiet btn-lg">I already have one</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

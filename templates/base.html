@@ -1,0 +1,95 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}KidSpark{% endblock %} · KidSpark</title>
+  <meta name="description" content="KidSpark maps a child's cognitive aptitude and interests across eight dimensions and turns it into a personal learning path.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Fredoka', 'system-ui', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            ink: { DEFAULT: '#1B1A2E', soft: '#4A4763', mute: '#7C7994' },
+            spark: {
+              50: '#F1EFFE', 100: '#E3E0FD', 200: '#C8C4FB', 300: '#A49EF6',
+              400: '#7D74EE', 500: '#5B4BE8', 600: '#4A38D0', 700: '#3D2EA8',
+              800: '#322883', 900: '#2A2368',
+            },
+            sunbeam: { 100: '#FFF4D6', 400: '#FFC94A', 500: '#F5B301', 600: '#C98F00' },
+            coral: { 100: '#FFE9E4', 400: '#FF8A76', 500: '#FF6B5A' },
+            paper: '#F6F5FB',
+          },
+          boxShadow: {
+            lift: '0 3px 0 0 rgba(27,26,46,0.12)',
+            sticker: '0 2px 0 0 rgba(27,26,46,0.10)',
+            press: '0 1px 0 0 rgba(27,26,46,0.12)',
+          },
+          borderRadius: { '4xl': '2rem' },
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body class="min-h-screen bg-paper font-sans text-ink antialiased {% block body_class %}{% endblock %}"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-spark-600 focus:px-4 focus:py-2 focus:text-white">
+    Skip to content
+  </a>
+
+  {% include 'partials/navbar.html' %}
+
+  <div id="toasts" class="pointer-events-none fixed inset-x-0 top-20 z-40 flex flex-col items-center gap-2 px-4 print:hidden">
+    {% for message in messages %}
+      <div class="toast pointer-events-auto w-full max-w-md rounded-2xl border px-5 py-3 text-sm font-medium shadow-lift
+        {% if message.tags == 'error' %}border-coral-500/30 bg-coral-100 text-coral-500
+        {% elif message.tags == 'warning' %}border-sunbeam-500/40 bg-sunbeam-100 text-sunbeam-600
+        {% elif message.tags == 'success' %}border-emerald-500/30 bg-emerald-50 text-emerald-700
+        {% else %}border-spark-200 bg-spark-50 text-spark-700{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include 'partials/footer.html' %}
+
+  <script src="https://unpkg.com/htmx.org@1.9.12/dist/htmx.min.js"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.417.0/dist/umd/lucide.min.js"></script>
+  <script>
+    if (window.lucide) { lucide.createIcons(); }
+    // HTMX swaps in new markup, so icons inside it need re-drawing.
+    document.body.addEventListener('htmx:afterSwap', function () {
+      if (window.lucide) { lucide.createIcons(); }
+    });
+    // Fade the toasts out after a beat so they never cover the quiz.
+    window.setTimeout(function () {
+      document.querySelectorAll('.toast').forEach(function (el) {
+        el.style.transition = 'opacity .4s ease';
+        el.style.opacity = '0';
+        window.setTimeout(function () { el.remove(); }, 500);
+      });
+    }, 5000);
+  </script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

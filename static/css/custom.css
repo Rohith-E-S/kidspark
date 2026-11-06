@@ -1,0 +1,230 @@
+/* ==========================================================================
+   KidSpark design layer
+   --------------------------------------------------------------------------
+   Tailwind covers layout and utility work. This file holds only the pieces
+   Tailwind utilities express badly: the spark mark (our 8-dimension logo),
+   the sticker buttons, the workbook texture, and print rules.
+   ========================================================================== */
+
+/* --- The spark mark -------------------------------------------------------
+   Eight dots in a ring, one per assessment dimension. It is the same mark at
+   three scales: the logo, the child avatar, and the report's signature dial.
+   ------------------------------------------------------------------------- */
+.spark-mark {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2px;
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+.spark-mark > span {
+  border-radius: 9999px;
+  background: #C8C4FB;
+  transform-origin: center;
+  transition: transform .35s cubic-bezier(.34, 1.56, .64, 1), background-color .35s ease;
+}
+.spark-mark > span:nth-child(1) { background: #4F5BD5; }
+.spark-mark > span:nth-child(2) { background: #E8567C; }
+.spark-mark > span:nth-child(3) { background: #1FA8A0; }
+.spark-mark > span:nth-child(4) { background: #F0A03C; }
+.spark-mark > span:nth-child(5) { background: #2E9E5B; }
+.spark-mark > span:nth-child(6) { background: #C05BD8; }
+.spark-mark > span:nth-child(7) { background: #7BA82A; }
+.spark-mark > span:nth-child(8) { background: #F0764C; }
+.spark-mark, .spark-dial > .ring {
+  grid-template-areas: "a b c" "d x e" "f g h";
+}
+.spark-mark > span:nth-child(1), .spark-dial > .ring > span:nth-child(1) { grid-area: a; }
+.spark-mark > span:nth-child(2), .spark-dial > .ring > span:nth-child(2) { grid-area: b; }
+.spark-mark > span:nth-child(3), .spark-dial > .ring > span:nth-child(3) { grid-area: c; }
+.spark-mark > span:nth-child(4), .spark-dial > .ring > span:nth-child(4) { grid-area: d; }
+.spark-mark > span:nth-child(5), .spark-dial > .ring > span:nth-child(5) { grid-area: e; }
+.spark-mark > span:nth-child(6), .spark-dial > .ring > span:nth-child(6) { grid-area: f; }
+.spark-mark > span:nth-child(7), .spark-dial > .ring > span:nth-child(7) { grid-area: g; }
+.spark-mark > span:nth-child(8), .spark-dial > .ring > span:nth-child(8) { grid-area: h; }
+a:hover > .spark-mark > span { transform: scale(0.72); background-color: #5B4BE8; }
+
+/* The dial: the mark blown up around a monogram. Used once per report. */
+.spark-dial {
+  position: relative;
+  width: 9.5rem;
+  height: 9.5rem;
+  flex: none;
+}
+.spark-dial > .ring {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 0.35rem;
+}
+.spark-dial > .ring > span {
+  border-radius: 9999px;
+  box-shadow: 0 0 0 4px rgba(246, 245, 251, 0.9);
+}
+.spark-dial > .core {
+  position: absolute;
+  inset: 22%;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Fredoka, system-ui, sans-serif;
+  font-size: 2.25rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+/* --- Sticker buttons -----------------------------------------------------
+   Physical, pressable, and obvious to a child: the shadow is the depth of
+   the key, and pressing it removes exactly that depth.
+   ------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.875rem;
+  padding: 0.75rem 1.35rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1;
+  border: 1px solid transparent;
+  transition: transform .12s ease, box-shadow .12s ease, background-color .18s ease, color .18s ease, border-color .18s ease;
+  cursor: pointer;
+}
+.btn:active { transform: translateY(2px); box-shadow: none !important; }
+.btn:focus-visible { outline: 3px solid #A49EF6; outline-offset: 2px; }
+.btn-sm { padding: 0.55rem 1rem; font-size: 0.875rem; border-radius: 0.75rem; }
+.btn-lg { padding: 1rem 1.75rem; font-size: 1.05rem; border-radius: 1rem; }
+
+.btn-primary { background: #5B4BE8; color: #fff; box-shadow: 0 3px 0 0 #3D2EA8; }
+.btn-primary:hover { background: #4A38D0; }
+
+.btn-sunbeam { background: #FFC94A; color: #2A2368; box-shadow: 0 3px 0 0 #C98F00; }
+.btn-sunbeam:hover { background: #F5B301; }
+
+.btn-ghost {
+  background: #fff; color: #32305a;
+  border-color: rgba(27, 26, 46, 0.12);
+  box-shadow: 0 3px 0 0 rgba(27, 26, 46, 0.08);
+}
+.btn-ghost:hover { border-color: rgba(27, 26, 46, 0.24); color: #1B1A2E; }
+
+.btn-quiet { background: transparent; color: #4A4763; }
+.btn-quiet:hover { background: #E3E0FD; color: #3D2EA8; }
+
+.btn-danger { background: #fff; color: #FF6B5A; border-color: rgba(255, 107, 90, 0.35); }
+.btn-danger:hover { background: #FFE9E4; }
+
+/* --- Cards --------------------------------------------------------------- */
+.card {
+  background: #fff;
+  border: 1px solid rgba(27, 26, 46, 0.07);
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 0 0 rgba(27, 26, 46, 0.05);
+}
+.card-lift { transition: transform .18s ease, box-shadow .18s ease; }
+.card-lift:hover { transform: translateY(-3px); box-shadow: 0 6px 0 0 rgba(27, 26, 46, 0.09); }
+
+/* Eyebrow labels: the small, quiet signposts above section titles. */
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7C7994;
+}
+
+/* Pillar tag: filled dot = Part 1 (aptitude), ring = Part 2 (interest). */
+.tag-dot { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 9999px; flex: none; }
+.tag-ring { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 9999px; border-width: 2px; border-style: solid; flex: none; }
+
+/* --- Quiz answer cards --------------------------------------------------- */
+.answer-card {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 1rem;
+  border-radius: 1.25rem;
+  border: 2px solid rgba(27, 26, 46, 0.08);
+  background: #fff;
+  padding: 1rem 1.25rem;
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .14s ease, border-color .14s ease, background-color .14s ease, box-shadow .14s ease;
+}
+.answer-card:hover { transform: translateY(-2px); border-color: #A49EF6; box-shadow: 0 4px 0 0 rgba(91, 75, 232, 0.18); }
+.answer-card:has(input:checked) {
+  border-color: #5B4BE8;
+  background: #F1EFFE;
+  box-shadow: 0 4px 0 0 rgba(91, 75, 232, 0.25);
+}
+.answer-card:has(input:focus-visible) { outline: 3px solid #A49EF6; outline-offset: 2px; }
+.answer-card .answer-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.9rem;
+  flex: none;
+}
+.answer-card:has(input:checked) .answer-icon { background: #fff !important; }
+.answer-card .choice-mark { border-color: rgba(27, 26, 46, 0.15); }
+.answer-card .choice-dot { opacity: 0; transition: opacity .15s ease; }
+.answer-card:has(input:checked) .choice-mark { border-color: #5B4BE8; }
+.answer-card:has(input:checked) .choice-dot { opacity: 1; }
+
+/* Alpine's cloak: hide until the component is initialised. */
+[x-cloak] { display: none !important; }
+
+/* --- Workbook texture ---------------------------------------------------- */
+.paper-grid {
+  background-image: radial-gradient(rgba(27, 26, 46, 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* --- Progress ------------------------------------------------------------ */
+.progress-track { height: 0.7rem; border-radius: 9999px; background: rgba(27, 26, 46, 0.08); overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 9999px; background: linear-gradient(90deg, #7D74EE, #5B4BE8); transition: width .5s ease; }
+
+/* --- HTMX ---------------------------------------------------------------- */
+.htmx-request .htmx-dim { opacity: .45; }
+.htmx-swapping { opacity: 0; transition: opacity .12s ease; }
+#quiz-stage.htmx-added { opacity: 0; }
+#quiz-stage { transition: opacity .18s ease; }
+
+/* --- Report review accordion -------------------------------------------- */
+details.review-row > summary { cursor: pointer; list-style: none; }
+details.review-row > summary::-webkit-details-marker { display: none; }
+details.review-row[open] > summary .chevron { transform: rotate(90deg); }
+.chevron { transition: transform .18s ease; }
+
+/* --- Print: a clean, single-report sheet --------------------------------- */
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff !important; color: #000; }
+  .print\:hidden, header, footer { display: none !important; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .card, .spark-dial, .answer-card { box-shadow: none !important; }
+  .card { border: 1px solid #ddd !important; break-inside: avoid; }
+  .no-break { break-inside: avoid; }
+  .page-break { break-before: page; }
+  details.review-row { break-inside: avoid; }
+  details.review-row[open] > summary { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

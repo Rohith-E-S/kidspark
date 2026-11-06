@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-2xl px-5 py-14">
+
+  <p class="eyebrow">{% if mode == 'edit' %}Update profile{% else %}New profile{% endif %}</p>
+  <h1 class="mt-3 font-display text-4xl font-semibold tracking-tight text-ink">{{ title }}</h1>
+  <p class="mt-3 text-ink-soft">
+    Age sets the question band and the wording of the recommendations, so enter the age the
+    child is today rather than the age they will be this year.
+  </p>
+
+  <div class="card mt-8 p-6 sm:p-8">
+    <form method="post" novalidate class="space-y-6">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="rounded-xl border border-coral-500/30 bg-coral-100 px-4 py-3 text-sm font-medium text-coral-500">
+          {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+      {% endif %}
+
+      <div>
+        <label for="{{ form.name.id_for_label }}" class="mb-1.5 block text-sm font-semibold text-ink">Child's name</label>
+        {{ form.name }}
+        {% for error in form.name.errors %}<p class="mt-1 text-sm text-coral-500">{{ error }}</p>{% endfor %}
+      </div>
+
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label for="{{ form.age.id_for_label }}" class="mb-1.5 block text-sm font-semibold text-ink">Age</label>
+          {{ form.age }}
+          <p class="mt-1 text-xs text-ink-mute">Between 6 and 16 years.</p>
+          {% for error in form.age.errors %}<p class="mt-1 text-sm text-coral-500">{{ error }}</p>{% endfor %}
+        </div>
+        <div>
+          <label for="{{ form.grade.id_for_label }}" class="mb-1.5 block text-sm font-semibold text-ink">Grade</label>
+          {{ form.grade }}
+          {% for error in form.grade.errors %}<p class="mt-1 text-sm text-coral-500">{{ error }}</p>{% endfor %}
+        </div>
+      </div>
+
+      <fieldset>
+        <legend class="mb-2 text-sm font-semibold text-ink">Avatar colour</legend>
+        <div class="flex flex-wrap gap-2">
+          {% for radio in form.avatar_color %}
+            <label class="cursor-pointer">
+              <input type="radio" name="{{ form.avatar_color.name }}" value="{{ radio.value }}"
+                     class="peer sr-only" {% if radio.data.selected %}checked{% endif %}>
+              <span class="flex items-center gap-2 rounded-xl border-2 border-ink/10 px-3 py-2 text-sm font-semibold capitalize text-ink-soft transition peer-checked:border-spark-500 peer-checked:bg-spark-50 peer-checked:text-spark-700 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-spark-300">
+                <span class="h-4 w-4 rounded-full
+                  {% if radio.value == 'indigo' %}bg-indigo-500
+                  {% elif radio.value == 'rose' %}bg-rose-500
+                  {% elif radio.value == 'emerald' %}bg-emerald-500
+                  {% elif radio.value == 'amber' %}bg-amber-500
+                  {% elif radio.value == 'sky' %}bg-sky-500
+                  {% else %}bg-violet-500{% endif %}"></span>
+                {{ radio.choice_label }}
+              </span>
+            </label>
+          {% endfor %}
+        </div>
+      </fieldset>
+
+      <div class="flex flex-wrap items-center gap-3 border-t border-ink/5 pt-6">
+        <button type="submit" class="btn btn-primary">
+          {% if mode == 'edit' %}Save changes{% else %}Add profile{% endif %}
+        </button>
+        <a href="{% url 'accounts:dashboard' %}" class="btn btn-quiet">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  {% if mode == 'edit' %}
+    <!-- Destructive action lives outside the edit form so a stray Enter key
+         can never delete a profile. -->
+    <div class="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-coral-500/25 bg-coral-100/60 px-5 py-4">
+      <div>
+        <p class="font-semibold text-ink">Delete this profile</p>
+        <p class="text-sm text-ink-soft">Removes {{ child.name }} and every report attached to them.</p>
+      </div>
+      <form method="post" action="{% url 'accounts:child_delete' child.id %}"
+            onsubmit="return confirm('Delete {{ child.name }} and every report attached to this profile? This cannot be undone.');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger btn-sm">Delete profile</button>
+      </form>
+    </div>
+  {% endif %}
+
+</section>
+{% endblock %}

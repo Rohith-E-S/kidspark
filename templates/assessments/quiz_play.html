@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Assessment · {{ child.name }}{% endblock %}
+
+{% block content %}
+<div class="paper-grid min-h-[70vh]">
+  <div class="flex flex-wrap items-center justify-between gap-3 border-b border-ink/5 bg-white/70 px-5 py-3 text-sm">
+    <a href="{% url 'accounts:dashboard' %}" class="inline-flex items-center gap-1.5 font-semibold text-ink-soft transition hover:text-spark-600">
+      <i data-lucide="arrow-left" class="h-4 w-4"></i> Save and exit
+    </a>
+    <p class="text-ink-mute">
+      Answers save one at a time — leaving now keeps everything so far.
+    </p>
+  </div>
+
+  {% include 'assessments/partials/question_card.html' %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('alpine:init', function () {
+    // Per-question timer. The hidden field is filled on submit, so the report
+    // can show how long each answer took without any polling.
+    Alpine.data('questionTimer', function () {
+      return {
+        choice: null,
+        startedAt: Date.now(),
+        get elapsed() {
+          return Math.max(1, Math.round((Date.now() - this.startedAt) / 1000));
+        },
+      };
+    });
+  });
+</script>
+{% endblock %}

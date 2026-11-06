@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Create account{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-xl px-5 py-16">
+  <p class="eyebrow">New account</p>
+  <h1 class="mt-3 font-display text-4xl font-semibold tracking-tight text-ink">Create your parent account</h1>
+  <p class="mt-3 text-ink-soft">
+    One account holds every child you assess. You can add profiles straight after signing up.
+  </p>
+
+  <div class="card mt-8 p-6 sm:p-8">
+    <form method="post" novalidate class="space-y-5">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="rounded-xl border border-coral-500/30 bg-coral-100 px-4 py-3 text-sm font-medium text-coral-500">
+          {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+      {% endif %}
+
+      {% for field in form %}
+        <div>
+          <label for="{{ field.id_for_label }}" class="mb-1.5 block text-sm font-semibold text-ink">
+            {{ field.label }}{% if not field.field.required %} <span class="font-normal text-ink-mute">(optional)</span>{% endif %}
+          </label>
+          {{ field }}
+          {% if field.help_text %}<p class="mt-1 text-xs text-ink-mute">{{ field.help_text }}</p>{% endif %}
+          {% for error in field.errors %}<p class="mt-1 text-sm text-coral-500">{{ error }}</p>{% endfor %}
+        </div>
+      {% endfor %}
+
+      <button type="submit" class="btn btn-primary w-full">Create account</button>
+    </form>
+  </div>
+
+  <p class="mt-5 text-sm text-ink-soft">
+    Already registered?
+    <a href="{% url 'accounts:login' %}" class="font-semibold text-spark-600 underline decoration-spark-200 decoration-2 underline-offset-2 hover:decoration-spark-500">Sign in instead</a>.
+  </p>
+</section>
+{% endblock %}

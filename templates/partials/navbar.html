@@ -1,0 +1,35 @@
+{% load static %}
+<header class="sticky top-0 z-30 border-b border-ink/5 bg-paper/85 backdrop-blur print:hidden">
+  <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
+    <a href="{% url 'home' %}" class="group flex items-center gap-3">
+      <span class="spark-mark" aria-hidden="true">
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+        <span></span><span></span>
+      </span>
+      <span class="font-display text-xl font-semibold tracking-tight text-ink">KidSpark</span>
+    </a>
+
+    <div class="flex items-center gap-1 text-sm font-semibold">
+      {% if user.is_authenticated %}
+        <a href="{% url 'accounts:dashboard' %}"
+           class="rounded-xl px-3 py-2 text-ink-soft transition hover:bg-spark-100 hover:text-spark-700">Dashboard</a>
+        <a href="{% url 'assessments:select_test' %}"
+           class="hidden rounded-xl px-3 py-2 text-ink-soft transition hover:bg-spark-100 hover:text-spark-700 sm:block">Take assessment</a>
+        <a href="{% url 'analytics:all_reports' %}"
+           class="hidden rounded-xl px-3 py-2 text-ink-soft transition hover:bg-spark-100 hover:text-spark-700 sm:block">Reports</a>
+        <form method="post" action="{% url 'accounts:logout' %}" class="ml-1">
+          {% csrf_token %}
+          <button type="submit" class="rounded-xl border border-ink/10 px-3 py-2 text-ink-soft transition hover:border-ink/20 hover:text-ink">
+            Sign out
+          </button>
+        </form>
+      {% else %}
+        <a href="{% url 'accounts:login' %}"
+           class="rounded-xl px-3 py-2 text-ink-soft transition hover:bg-spark-100 hover:text-spark-700">Sign in</a>
+        <a href="{% url 'accounts:register' %}"
+           class="btn btn-primary btn-sm">Create account</a>
+      {% endif %}
+    </div>
+  </nav>
+</header>

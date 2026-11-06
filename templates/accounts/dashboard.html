@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load spark %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-6xl px-5 py-10">
+
+  <header class="flex flex-wrap items-end justify-between gap-6">
+    <div>
+      <p class="eyebrow">Parent dashboard</p>
+      <h1 class="mt-2 font-display text-4xl font-semibold tracking-tight text-ink">
+        {% if children %}Your children{% else %}Let's add the first child{% endif %}
+      </h1>
+      <p class="mt-2 max-w-xl text-ink-soft">
+        Each assessment takes about fifteen minutes and produces one report card you can
+        print, keep, and bring to a parent-teacher meeting.
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <a href="{% url 'assessments:select_test' %}" class="btn btn-ghost">
+        <i data-lucide="list-checks" class="h-4 w-4"></i> Take assessment
+      </a>
+      <a href="{% url 'accounts:child_create' %}" class="btn btn-primary">
+        <i data-lucide="user-plus" class="h-4 w-4"></i> Add a child
+      </a>
+    </div>
+  </header>
+
+  <!-- Summary: three facts, nothing decorative. -->
+  <dl class="mt-8 grid gap-4 sm:grid-cols-3">
+    <div class="card p-5">
+      <dt class="eyebrow">Children</dt>
+      <dd class="mt-2 flex items-baseline gap-2">
+        <span class="font-display text-4xl font-semibold text-ink">{{ children_count }}</span>
+        <span class="text-sm text-ink-mute">profile{{ children_count|pluralize }}</span>
+      </dd>
+    </div>
+    <div class="card p-5">
+      <dt class="eyebrow">Assessments completed</dt>
+      <dd class="mt-2 flex items-baseline gap-2">
+        <span class="font-display text-4xl font-semibold text-ink">{{ completed_total }}</span>
+        <span class="text-sm text-ink-mute">report{{ completed_total|pluralize }}</span>
+      </dd>
+    </div>
+    <div class="card p-5">
+      <dt class="eyebrow">Top discovered strengths</dt>
+      <dd class="mt-2">
+        {% if top_strengths %}
+          <ul class="flex flex-wrap gap-2">
+            {% for name, score in top_strengths %}
+              <li class="rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
+                {{ name }} <span class="text-emerald-600/70">{{ score }}%</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-sm text-ink-mute">Complete an assessment to surface strengths.</p>
+        {% endif %}
+      </dd>
+    </div>
+  </dl>
+
+  <!-- Child cards -->
+  {% if children %}
+    <ul class="mt-8 grid gap-5 lg:grid-cols-2">
+      {% for child in children %}
+        <li class="card card-lift overflow-hidden">
+          <div class="flex items-start gap-4 p-5 sm:p-6">
+            <div class="flex h-14 w-14 flex-none items-center justify-center rounded-2xl font-display text-2xl font-semibold text-white {{ child.avatar_class }}">
+              {{ child.initials }}
+            </div>
+
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <h2 class="font-display text-2xl font-semibold leading-tight text-ink">{{ child.name }}</h2>
+                <span class="rounded-full bg-spark-50 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-spark-600">
+                  {{ child.age }} yrs
+                </span>
+                <span class="rounded-full bg-paper px-2.5 py-1 text-xs font-semibold text-ink-soft">
+                  {{ child.age_group_label }}
+                </span>
+              </div>
+
+              <p class="mt-1 text-sm text-ink-soft">{{ child.grade }}</p>
+
+              <p class="mt-3 text-sm text-ink-soft">
+                <span class="font-semibold text-ink">{{ child.total_tests }}</span> completed
+                assessment{{ child.total_tests|pluralize }}
+                {% if child.in_progress %}
+                  · <span class="font-semibold text-sunbeam-600">1 in progress</span>
+                {% endif %}
+              </p>
+
+              {% if child.latest %}
+                <!-- Spark strip: the eight dimensions in one glance. Filled =
+                     strong, mid = developing, faint = emerging. -->
+                <div class="mt-4">
+                  <p class="eyebrow">Latest profile · {{ child.latest.persona_title }}</p>
+                  <div class="mt-2 flex items-center gap-1.5">
+                    {% for row in child.latest.aptitude_breakdown %}
+                      <span class="h-2.5 w-6 rounded-full"
+                            style="background:{{ row.code|cat_color }}; opacity:{% if row.score >= 75 %}1{% elif row.score >= 45 %}0.5{% else %}0.22{% endif %}"
+                            title="{{ row.name }}: {{ row.score }}%"></span>
+                    {% endfor %}
+                    <span class="mx-1 h-4 w-px bg-ink/10"></span>
+                    {% for row in child.latest.interest_breakdown %}
+                      <span class="h-2.5 w-6 rounded-full"
+                            style="background:{{ row.code|cat_color }}; opacity:{% if row.score >= 75 %}1{% elif row.score >= 45 %}0.5{% else %}0.22{% endif %}"
+                            title="{{ row.name }}: {{ row.score }}%"></span>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 border-t border-ink/5 bg-paper/60 px-5 py-4 sm:px-6">
+            {% if child.in_progress %}
+              <a href="{% url 'assessments:session' child.in_progress.id %}" class="btn btn-primary btn-sm">
+                <i data-lucide="play-circle" class="h-4 w-4"></i> Resume test
+              </a>
+            {% else %}
+              <a href="{% url 'assessments:start_test' child.id %}" class="btn btn-primary btn-sm">
+                <i data-lucide="sparkles" class="h-4 w-4"></i> Start new assessment
+              </a>
+            {% endif %}
+
+            {% if child.latest %}
+              <a href="{% url 'analytics:report_detail' child.latest.session_id %}" class="btn btn-ghost btn-sm">
+                <i data-lucide="bar-chart-3" class="h-4 w-4"></i> View latest report
+              </a>
+            {% endif %}
+
+            <div class="ml-auto flex items-center gap-1">
+              <a href="{% url 'accounts:child_edit' child.id %}" class="btn btn-quiet btn-sm">Edit</a>
+              <form method="post" action="{% url 'accounts:child_delete' child.id %}"
+                    onsubmit="return confirm('Delete {{ child.name }} and every report attached to this profile? This cannot be undone.');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+              </form>
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="card mt-8 flex flex-col items-start gap-4 p-8 sm:p-12">
+      <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600" aria-hidden="true">
+        <i data-lucide="sprout" class="h-7 w-7"></i>
+      </span>
+      <h2 class="font-display text-2xl font-semibold text-ink">No child profiles yet</h2>
+      <p class="max-w-lg text-ink-soft">
+        Add a name, an age between 6 and 16, and a grade. You can edit any of it later, and
+        each child keeps their own history of reports.
+      </p>
+      <a href="{% url 'accounts:child_create' %}" class="btn btn-primary">Add a child profile</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
