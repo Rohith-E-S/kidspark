@@ -6,6 +6,43 @@ MIN_AGE = 6
 MAX_AGE = 16
 
 
+class Classroom(models.Model):
+    """A classroom managed by a teacher/staff member."""
+
+    teacher = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='classrooms'
+    )
+    name = models.CharField(max_length=100, help_text="e.g. Grade 5 - Section A")
+    grade = models.CharField(max_length=50, help_text="e.g. 5th Grade")
+    academic_year = models.CharField(max_length=20, default='2026-2027')
+    code = models.CharField(max_length=12, unique=True, blank=True)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['grade', 'name', 'id']
+
+    def __str__(self):
+        return f"{self.name} ({self.grade})"
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            import secrets
+            self.code = secrets.token_hex(3).upper()
+        super().save(*args, **kwargs)
+
+    @property
+    def student_count(self):
+        return self.students.count()
+
+    @property
+    def completed_assessments_count(self):
+        from assessments.models import AssessmentSession
+        return AssessmentSession.objects.filter(
+            child__classroom=self, is_completed=True
+        ).count()
+
+
 class ChildProfile(models.Model):
     """A child whose aptitude and interests are being assessed."""
 
@@ -17,6 +54,9 @@ class ChildProfile(models.Model):
 
     parent = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='children'
+    )
+    classroom = models.ForeignKey(
+        Classroom, on_delete=models.SET_NULL, null=True, blank=True, related_name='students'
     )
     name = models.CharField(max_length=100)
     age = models.PositiveIntegerField(

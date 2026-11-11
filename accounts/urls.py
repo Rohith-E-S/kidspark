@@ -13,4 +13,6 @@ urlpatterns = [
     path('children/add/', views.child_create, name='child_create'),
     path('children/<int:child_id>/edit/', views.child_edit, name='child_edit'),
     path('children/<int:child_id>/delete/', views.child_delete, name='child_delete'),
+    path('children/<int:child_id>/leave-classroom/', views.leave_classroom, name='leave_classroom'),
+    path('classrooms/join/', views.join_classroom, name='join_classroom'),
 ]

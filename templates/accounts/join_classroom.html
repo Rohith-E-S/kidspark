@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load spark %}
+
+{% block title %}Join a Classroom Cohort · KidSpark{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-xl px-5 py-12">
+
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-2 text-sm text-ink-mute mb-4">
+    <a href="{% url 'accounts:dashboard' %}" class="hover:text-ink transition flex items-center gap-1">
+      <i data-lucide="arrow-left" class="h-4 w-4"></i> Dashboard
+    </a>
+    <span>/</span>
+    <span class="text-ink font-semibold">Join Classroom</span>
+  </nav>
+
+  <div class="card p-6 sm:p-8 border border-white/80 shadow-xl">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-700 shadow-sm">
+        <i data-lucide="school" class="h-6 w-6"></i>
+      </span>
+      <div>
+        <h1 class="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+          Join a Classroom
+        </h1>
+        <p class="text-xs text-ink-soft">
+          Connect your child to their school class or cohort.
+        </p>
+      </div>
+    </div>
+
+    <p class="text-sm text-ink-soft mb-6">
+      Enter the 6-character class code provided by your child's teacher or school educator (for example, <code class="font-mono text-xs font-bold px-1.5 py-0.5 rounded bg-sky-50 text-sky-800 border border-sky-200">#E4B82A</code>).
+    </p>
+
+    <form method="post" class="space-y-6" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="rounded-2xl border border-coral-500/30 bg-coral-100 px-4 py-3 text-sm font-medium text-coral-600">
+          {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+      {% endif %}
+
+      <div>
+        <label for="{{ form.child.id_for_label }}" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-ink-soft">
+          Select Child Profile *
+        </label>
+        {{ form.child }}
+        {% for error in form.child.errors %}<p class="mt-1 text-xs text-coral-500">{{ error }}</p>{% endfor %}
+        <p class="mt-1 text-xs text-ink-mute">Choose which child is joining this class.</p>
+      </div>
+
+      <div>
+        <label for="{{ form.class_code.id_for_label }}" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-ink-soft">
+          Classroom Join Code *
+        </label>
+        <div class="relative">
+          {{ form.class_code }}
+        </div>
+        {% for error in form.class_code.errors %}
+          <p class="mt-1.5 text-xs font-semibold text-coral-600 flex items-center gap-1">
+            <i data-lucide="alert-circle" class="h-3.5 w-3.5"></i> {{ error }}
+          </p>
+        {% endfor %}
+        <p class="mt-1 text-xs text-ink-mute">Codes are case-insensitive and match your educator's cohort invite.</p>
+      </div>
+
+      <div class="rounded-xl bg-sky-50/70 border border-sky-200/60 p-4 text-xs text-sky-900 flex items-start gap-2.5">
+        <i data-lucide="info" class="h-4 w-4 flex-none mt-0.5 text-sky-700"></i>
+        <span>
+          Enrolling in a classroom allows the class teacher to review your child's assessment status and include their scores in cohort-level strength analytics. You can leave the classroom cohort at any time.
+        </span>
+      </div>
+
+      <div class="flex items-center justify-between gap-4 pt-2">
+        <a href="{% url 'accounts:dashboard' %}" class="btn btn-ghost">
+          Cancel
+        </a>
+        <button type="submit" class="btn btn-primary btn-lg shadow-lift">
+          <i data-lucide="check" class="h-5 w-5"></i> Join Cohort
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

@@ -292,3 +292,254 @@ class IconTests(TestCase):
         body = response.content.decode()
         self.assertNotRegex(body, EMOJI)
         self.assertContains(response, 'data-lucide=')
+
+
+class TeacherPortalTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command('seed_data', verbosity=0)
+        cls.staff_user = User.objects.create_user('teacher_user', password='password123', is_staff=True)
+        cls.normal_user = User.objects.create_user('normal_parent', password='password123', is_staff=False)
+        cls.category = Category.objects.get(code='LOGICAL')
+
+    def test_teacher_dashboard_requires_staff(self):
+        # Anonymous redirect
+        response = self.client.get(reverse('assessments:teacher_dashboard'))
+        self.assertEqual(response.status_code, 302)
+
+        # Non-staff redirect
+        self.client.force_login(self.normal_user)
+        response = self.client.get(reverse('assessments:teacher_dashboard'))
+        self.assertEqual(response.status_code, 302)
+
+        # Staff user allowed
+        self.client.force_login(self.staff_user)
+        response = self.client.get(reverse('assessments:teacher_dashboard'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Question Bank Manager')
+        self.assertContains(response, 'Logical &amp; Mathematical')
+
+    def test_teacher_filter_by_dimension_and_search(self):
+        self.client.force_login(self.staff_user)
+
+        # Filter by category
+        response = self.client.get(reverse('assessments:teacher_dashboard'), {'category': 'LOGICAL'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Which number finishes the pattern?')
+
+        # Search
+        response = self.client.get(reverse('assessments:teacher_dashboard'), {'q': 'snail'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'You find a tiny snail on the path')
+
+    def test_teacher_create_question_with_choices(self):
+        self.client.force_login(self.staff_user)
+        payload = {
+            'category': self.category.id,
+            'question_type': 'OBJECTIVE',
+            'age_group': 'JUNIOR',
+            'difficulty_weight': 1,
+            'text': 'What is 3 + 4?',
+            'visual_hint': '3 + 4 = ?',
+            'order': 99,
+            'choice_1_text': '7',
+            'choice_1_icon': '',
+            'choice_1_weight': 0,
+            'choice_2_text': '6',
+            'choice_2_icon': '',
+            'choice_2_weight': 0,
+            'choice_3_text': '8',
+            'choice_3_icon': '',
+            'choice_3_weight': 0,
+            'choice_4_text': '5',
+            'choice_4_icon': '',
+            'choice_4_weight': 0,
+            'correct_choice': '1',
+        }
+        response = self.client.post(reverse('assessments:teacher_question_create'), data=payload)
+        self.assertEqual(response.status_code, 302)
+
+        question = Question.objects.filter(text='What is 3 + 4?').first()
+        self.assertIsNotNone(question)
+        self.assertEqual(question.choices.count(), 4)
+        correct_choice = question.choices.get(is_correct=True)
+        self.assertEqual(correct_choice.text, '7')
+        self.assertEqual(correct_choice.score_weight, 10)
+
+    def test_teacher_edit_question(self):
+        self.client.force_login(self.staff_user)
+        q = Question.objects.first()
+        payload = {
+            'category': q.category.id,
+            'question_type': q.question_type,
+            'age_group': q.age_group,
+            'difficulty_weight': 2,
+            'text': 'Updated Question Text Here?',
+            'visual_hint': 'Updated Cue',
+            'order': q.order,
+            'choice_1_text': 'Updated Choice A',
+            'choice_1_icon': 'smile',
+            'choice_1_weight': 0,
+            'choice_2_text': 'Updated Choice B',
+            'choice_2_icon': '',
+            'choice_2_weight': 0,
+            'choice_3_text': 'Updated Choice C',
+            'choice_3_icon': '',
+            'choice_3_weight': 0,
+            'choice_4_text': 'Updated Choice D',
+            'choice_4_icon': '',
+            'choice_4_weight': 0,
+            'correct_choice': '1',
+        }
+        response = self.client.post(reverse('assessments:teacher_question_edit', args=[q.id]), data=payload)
+        self.assertEqual(response.status_code, 302)
+
+        q.refresh_from_db()
+        self.assertEqual(q.text, 'Updated Question Text Here?')
+        self.assertEqual(q.difficulty_weight, 2)
+        choice_a = q.choices.first()
+        self.assertEqual(choice_a.text, 'Updated Choice A')
+
+    def test_student_preview_endpoint(self):
+        self.client.force_login(self.staff_user)
+        q = Question.objects.first()
+        response = self.client.get(reverse('assessments:teacher_question_preview', args=[q.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Simulated Quiz Card · Student View')
+        self.assertContains(response, q.text)
+
+
+class ClassroomManagementTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command('seed_data', verbosity=0)
+        cls.teacher = User.objects.create_user('teacher_jenny', password='password123', is_staff=True)
+        cls.normal_parent = User.objects.create_user('parent_john', password='password123', is_staff=False)
+
+    def test_classroom_requires_staff(self):
+        # Anonymous redirect
+        res = self.client.get(reverse('assessments:classroom_list'))
+        self.assertEqual(res.status_code, 302)
+
+        # Non-staff redirect
+        self.client.force_login(self.normal_parent)
+        res = self.client.get(reverse('assessments:classroom_list'))
+        self.assertEqual(res.status_code, 302)
+
+        # Staff allowed
+        self.client.force_login(self.teacher)
+        res = self.client.get(reverse('assessments:classroom_list'))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'Classrooms &amp; Student Cohorts')
+
+    def test_classroom_create_and_list(self):
+        self.client.force_login(self.teacher)
+        payload = {
+            'name': 'Grade 5 - Section A (Dolphins)',
+            'grade': '5th Grade',
+            'academic_year': '2026-2027',
+            'description': 'Advanced STEM and logic cohort.',
+        }
+        res = self.client.post(reverse('assessments:classroom_create'), data=payload)
+        from accounts.models import Classroom
+        classroom = Classroom.objects.filter(name='Grade 5 - Section A (Dolphins)').first()
+        self.assertIsNotNone(classroom)
+        self.assertEqual(classroom.teacher, self.teacher)
+        self.assertEqual(classroom.grade, '5th Grade')
+        self.assertTrue(len(classroom.code) >= 6)
+        self.assertRedirects(res, reverse('assessments:classroom_detail', args=[classroom.id]))
+
+        # View in classroom list
+        list_res = self.client.get(reverse('assessments:classroom_list'))
+        self.assertEqual(list_res.status_code, 200)
+        self.assertContains(list_res, 'Grade 5 - Section A (Dolphins)')
+        self.assertContains(list_res, classroom.code)
+
+    def test_classroom_edit(self):
+        from accounts.models import Classroom
+        self.client.force_login(self.teacher)
+        c = Classroom.objects.create(
+            teacher=self.teacher, name='Grade 4 Cohort', grade='4th Grade'
+        )
+        res = self.client.post(reverse('assessments:classroom_edit', args=[c.id]), data={
+            'name': 'Grade 4 - Hawks',
+            'grade': '4th Grade',
+            'academic_year': '2026-2027',
+            'description': 'Updated description',
+        })
+        self.assertRedirects(res, reverse('assessments:classroom_detail', args=[c.id]))
+        c.refresh_from_db()
+        self.assertEqual(c.name, 'Grade 4 - Hawks')
+
+    def test_student_enrollment_and_detail(self):
+        from accounts.models import Classroom
+        self.client.force_login(self.teacher)
+        c = Classroom.objects.create(
+            teacher=self.teacher, name='Grade 6 Cohort', grade='6th Grade'
+        )
+
+        # Enroll student
+        res = self.client.post(reverse('assessments:student_add', args=[c.id]), data={
+            'name': 'Lucas Vance',
+            'age': 11,
+            'grade': '6th Grade',
+            'avatar_color': 'sky',
+        })
+        self.assertRedirects(res, reverse('assessments:classroom_detail', args=[c.id]))
+
+        lucas = c.students.filter(name='Lucas Vance').first()
+        self.assertIsNotNone(lucas)
+        self.assertEqual(lucas.age_group, 'MIDDLE')
+        self.assertEqual(lucas.parent, self.teacher)
+
+        # Classroom detail page shows student
+        detail_res = self.client.get(reverse('assessments:classroom_detail', args=[c.id]))
+        self.assertEqual(detail_res.status_code, 200)
+        self.assertContains(detail_res, 'Lucas Vance')
+        self.assertContains(detail_res, 'Not Started')
+
+    def test_student_edit_and_unenroll(self):
+        from accounts.models import Classroom
+        self.client.force_login(self.teacher)
+        c = Classroom.objects.create(teacher=self.teacher, name='Test Cohort', grade='5th Grade')
+        student = ChildProfile.objects.create(
+            parent=self.teacher, classroom=c, name='Ella Blue', age=9, grade='5th Grade'
+        )
+        self.assertEqual(student.age_group, 'JUNIOR')
+
+        # Edit student age
+        edit_res = self.client.post(reverse('assessments:student_edit', args=[student.id]), data={
+            'name': 'Ella Blue',
+            'age': 10,
+            'grade': '5th Grade',
+            'avatar_color': 'rose',
+        })
+        self.assertRedirects(edit_res, reverse('assessments:classroom_detail', args=[c.id]))
+        student.refresh_from_db()
+        self.assertEqual(student.age, 10)
+        self.assertEqual(student.age_group, 'MIDDLE')
+
+        # Unenroll student
+        unenroll_res = self.client.post(reverse('assessments:student_remove', args=[student.id]))
+        self.assertRedirects(unenroll_res, reverse('assessments:classroom_detail', args=[c.id]))
+        student.refresh_from_db()
+        self.assertIsNone(student.classroom)
+
+    def test_cohort_analytics_with_completed_session(self):
+        from accounts.models import Classroom
+        self.client.force_login(self.teacher)
+        c = Classroom.objects.create(teacher=self.teacher, name='Analytics Cohort', grade='6th Grade')
+
+        # Aarav was seeded with a completed session and AssessmentResult
+        aarav = ChildProfile.objects.filter(name='Aarav').first()
+        self.assertIsNotNone(aarav)
+        aarav.classroom = c
+        aarav.save()
+
+        res = self.client.get(reverse('assessments:classroom_detail', args=[c.id]))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'Aarav')
+        self.assertContains(res, 'Completed')
+        self.assertContains(res, '8-Dimension Cohort Radar')
+        self.assertContains(res, 'cohortRadarChart')
+        self.assertContains(res, 'Class Persona Archetypes')

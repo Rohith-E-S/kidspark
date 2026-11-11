@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+{% load spark %}
+
+{% block title %}Teacher Portal · Question Bank{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-5 py-8">
+
+  <!-- Top Hero Header -->
+  <header class="flex flex-wrap items-end justify-between gap-6 pb-6 border-b border-white/50">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-500/20 text-sky-800 text-lg font-bold">
+          🎓
+        </span>
+        <p class="eyebrow text-sky-900 font-bold">Educator &amp; Teacher Portal</p>
+      </div>
+      <h1 class="mt-2 font-display text-4xl font-semibold tracking-tight text-ink">
+        Question Bank Manager
+      </h1>
+      <p class="mt-2 max-w-2xl text-ink-soft">
+        Review, add, and fine-tune questions across all eight cognitive aptitude and interest dimensions.
+        Every question maps directly to children's learning profiles and reports.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <a href="{% url 'assessments:teacher_question_create' %}" class="btn btn-primary btn-lg shadow-lift">
+        <i data-lucide="plus-circle" class="h-5 w-5"></i> Add New Question
+      </a>
+      <a href="{% url 'accounts:dashboard' %}" class="btn btn-ghost">
+        <i data-lucide="layout-dashboard" class="h-4 w-4"></i> Parent View
+      </a>
+    </div>
+  </header>
+
+  <!-- Educator Navigation Tabs -->
+  <nav class="mt-6 flex items-center gap-2 border-b border-white/60 pb-2">
+    <a href="{% url 'assessments:teacher_dashboard' %}"
+       class="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition bg-sky-500 text-white shadow-lift">
+      <i data-lucide="help-circle" class="h-4 w-4"></i> Question Bank
+    </a>
+    <a href="{% url 'assessments:classroom_list' %}"
+       class="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition text-ink-soft hover:bg-white/60 hover:text-ink">
+      <i data-lucide="users" class="h-4 w-4"></i> Classrooms &amp; Students
+    </a>
+  </nav>
+
+  <!-- Metric Badges -->
+  <dl class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="card p-5">
+      <dt class="eyebrow">Total Questions</dt>
+      <dd class="mt-2 flex items-baseline justify-between">
+        <span class="font-display text-3xl font-semibold text-ink">{{ total_count }}</span>
+        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-sky-100 text-sky-800">
+          {{ filtered_count }} showing
+        </span>
+      </dd>
+    </div>
+
+    <div class="card p-5">
+      <dt class="eyebrow flex items-center gap-1.5">
+        <span class="tag-dot bg-spark-500"></span> Part 1 · Cognitive Aptitude
+      </dt>
+      <dd class="mt-2 flex items-baseline justify-between">
+        <span class="font-display text-3xl font-semibold text-spark-600">{{ aptitude_count }}</span>
+        <span class="text-xs text-ink-mute">Scored puzzles (right/wrong)</span>
+      </dd>
+    </div>
+
+    <div class="card p-5">
+      <dt class="eyebrow flex items-center gap-1.5">
+        <span class="tag-ring border-sunbeam-500"></span> Part 2 · Areas of Interest
+      </dt>
+      <dd class="mt-2 flex items-baseline justify-between">
+        <span class="font-display text-3xl font-semibold text-amber-600">{{ interest_count }}</span>
+        <span class="text-xs text-ink-mute">Affinity scenarios</span>
+      </dd>
+    </div>
+
+    <div class="card p-5">
+      <dt class="eyebrow">Age Group Coverage</dt>
+      <dd class="mt-2 flex flex-wrap gap-1.5 text-xs font-semibold">
+        <span class="px-2 py-0.5 rounded-full bg-white/80 border border-ink/10 text-ink-soft">All: {{ age_stats.ALL }}</span>
+        <span class="px-2 py-0.5 rounded-full bg-white/80 border border-ink/10 text-ink-soft">Junior: {{ age_stats.JUNIOR }}</span>
+        <span class="px-2 py-0.5 rounded-full bg-white/80 border border-ink/10 text-ink-soft">Middle: {{ age_stats.MIDDLE }}</span>
+        <span class="px-2 py-0.5 rounded-full bg-white/80 border border-ink/10 text-ink-soft">Senior: {{ age_stats.SENIOR }}</span>
+      </dd>
+    </div>
+  </dl>
+
+  <!-- 8 Dimensions Quick Bar -->
+  <div class="mt-8">
+    <p class="eyebrow mb-3">Filter by Assessment Dimension</p>
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+      {% for cat in categories %}
+        <a href="?category={{ cat.code }}{% if search_query %}&q={{ search_query }}{% endif %}"
+           class="card p-3 flex flex-col items-center text-center transition hover:-translate-y-1 hover:shadow-md
+                  {% if selected_category == cat.code %}ring-2 ring-sky-500 shadow-md bg-white{% else %}hover:bg-white/90{% endif %}"
+           style="border-top: 3px solid {{ cat.code|cat_color }};">
+          <span class="flex h-8 w-8 items-center justify-center rounded-xl mb-1.5" style="background:{{ cat.code|cat_tint }}">
+            <i data-lucide="{{ cat.code|cat_icon }}" class="h-4 w-4" style="color:{{ cat.code|cat_color }}"></i>
+          </span>
+          <span class="font-display text-xs font-bold leading-tight text-ink">{{ cat.name }}</span>
+          <span class="mt-1 text-[0.65rem] font-bold px-2 py-0.5 rounded-full"
+                style="background:{{ cat.code|cat_tint }}; color:{{ cat.code|cat_color }}">
+            {{ cat.questions.count }} Qs
+          </span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Search and Filters Panel -->
+  <div class="card mt-8 p-5 sm:p-6 border border-white/80 shadow-md">
+    <form method="get" class="grid gap-4 md:grid-cols-[1.5fr_1fr_1fr_1fr_auto] items-end">
+      <div>
+        <label for="q" class="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-1.5">
+          Search Questions
+        </label>
+        <div class="relative">
+          <i data-lucide="search" class="absolute left-3.5 top-3.5 h-4 w-4 text-ink-mute"></i>
+          <input type="text" name="q" id="q" value="{{ search_query }}"
+                 placeholder="Search prompt, formula hint, or topic..."
+                 class="form-input pl-10 text-sm">
+        </div>
+      </div>
+
+      <div>
+        <label for="pillar" class="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-1.5">
+          Pillar
+        </label>
+        <select name="pillar" id="pillar" class="form-select text-sm">
+          <option value="">All Pillars</option>
+          <option value="APTITUDE" {% if selected_pillar == 'APTITUDE' %}selected{% endif %}>Part 1 · Cognitive Aptitude</option>
+          <option value="INTEREST" {% if selected_pillar == 'INTEREST' %}selected{% endif %}>Part 2 · Areas of Interest</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="category" class="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-1.5">
+          Dimension
+        </label>
+        <select name="category" id="category" class="form-select text-sm">
+          <option value="">All Dimensions</option>
+          {% for cat in categories %}
+            <option value="{{ cat.code }}" {% if selected_category == cat.code %}selected{% endif %}>
+              {{ cat.name }} ({{ cat.code }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label for="age_group" class="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-1.5">
+          Age Group
+        </label>
+        <select name="age_group" id="age_group" class="form-select text-sm">
+          <option value="">All Age Bands</option>
+          <option value="ALL" {% if selected_age == 'ALL' %}selected{% endif %}>All Ages (Universal)</option>
+          <option value="JUNIOR" {% if selected_age == 'JUNIOR' %}selected{% endif %}>Junior (Ages 6–9)</option>
+          <option value="MIDDLE" {% if selected_age == 'MIDDLE' %}selected{% endif %}>Middle (Ages 10–12)</option>
+          <option value="SENIOR" {% if selected_age == 'SENIOR' %}selected{% endif %}>Senior (Ages 13–16)</option>
+        </select>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button type="submit" class="btn btn-primary text-sm py-2.5">
+          <i data-lucide="filter" class="h-4 w-4"></i> Filter
+        </button>
+        {% if selected_pillar or selected_category or selected_age or selected_difficulty or search_query %}
+          <a href="{% url 'assessments:teacher_dashboard' %}" class="btn btn-ghost text-sm py-2.5 text-ink-mute hover:text-ink" title="Reset all filters">
+            <i data-lucide="rotate-ccw" class="h-4 w-4"></i> Reset
+          </a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- Questions List -->
+  <div class="mt-8 space-y-4">
+    {% if questions %}
+      {% for question in questions %}
+        <article id="q-{{ question.id }}" class="card p-5 sm:p-6 transition hover:shadow-lg border border-white/80">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+
+            <!-- Question Header & Badges -->
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <!-- Order Tag -->
+                <span class="inline-flex items-center justify-center h-6 px-2.5 rounded-lg bg-ink text-white font-mono text-xs font-bold">
+                  #{{ question.order }}
+                </span>
+
+                <!-- Category Badge -->
+                <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold"
+                      style="background:{{ question.category.code|cat_tint }}; color:{{ question.category.code|cat_color }}">
+                  <i data-lucide="{{ question.category.icon_name }}" class="h-3.5 w-3.5"></i>
+                  {{ question.category.name }}
+                </span>
+
+                <!-- Type Badge -->
+                {% if question.is_objective %}
+                  <span class="inline-flex items-center gap-1 rounded-full bg-spark-50 px-2.5 py-0.5 text-xs font-semibold text-spark-700 border border-spark-200">
+                    <span class="tag-dot bg-spark-500"></span> Scored Puzzle
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200">
+                    <span class="tag-ring border-amber-500"></span> Preference Scenario
+                  </span>
+                {% endif %}
+
+                <!-- Difficulty Badge -->
+                <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold
+                  {% if question.difficulty_weight == 1 %}bg-emerald-50 text-emerald-700 border border-emerald-200
+                  {% elif question.difficulty_weight == 2 %}bg-sky-50 text-sky-700 border border-sky-200
+                  {% else %}bg-purple-50 text-purple-700 border border-purple-200{% endif %}">
+                  Level {{ question.difficulty_weight }} · {{ question.difficulty_label }}
+                </span>
+
+                <!-- Age Group Badge -->
+                <span class="rounded-full bg-white/90 border border-ink/10 px-2.5 py-0.5 text-xs font-medium text-ink-soft">
+                  {{ question.get_age_group_display }}
+                </span>
+              </div>
+
+              <!-- Question Text -->
+              <h2 class="font-display text-xl font-semibold leading-snug text-ink mt-2">
+                {{ question.text }}
+              </h2>
+
+              <!-- Visual Hint Pill -->
+              {% if question.visual_hint %}
+                <div class="mt-2.5 inline-flex items-center gap-2 rounded-xl bg-sky-50/70 border border-sky-200/60 px-3 py-1 font-mono text-sm text-sky-900">
+                  <span class="text-xs font-sans uppercase font-bold text-sky-600">Hint / Cue:</span>
+                  <span>{{ question.visual_hint }}</span>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2 flex-none">
+              <!-- Student Preview Trigger (HTMX) -->
+              <button hx-get="{% url 'assessments:teacher_question_preview' question.id %}"
+                      hx-target="#previewModalContent"
+                      onclick="document.getElementById('previewModal').classList.remove('hidden')"
+                      class="btn btn-ghost btn-sm text-xs"
+                      title="Preview how a student sees this question card">
+                <i data-lucide="eye" class="h-4 w-4"></i> Student Preview
+              </button>
+
+              <a href="{% url 'assessments:teacher_question_edit' question.id %}"
+                 class="btn btn-primary btn-sm text-xs">
+                <i data-lucide="pencil" class="h-4 w-4"></i> Edit
+              </a>
+
+              <a href="{% url 'assessments:teacher_question_delete' question.id %}"
+                 class="btn btn-danger btn-sm text-xs">
+                <i data-lucide="trash-2" class="h-4 w-4"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Answer Choices Grid -->
+          <div class="mt-5 pt-4 border-t border-ink/5">
+            <p class="text-xs font-bold uppercase tracking-wider text-ink-mute mb-2">Configured Options (4 Choices):</p>
+            <div class="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+              {% for choice in question.choices.all %}
+                <div class="rounded-xl p-3 border text-sm flex items-center justify-between gap-2
+                  {% if choice.is_correct %}bg-emerald-50/80 border-emerald-300 text-emerald-950 font-semibold shadow-sm
+                  {% else %}bg-white/70 border-white/80 text-ink{% endif %}">
+                  <div class="flex items-center gap-2 min-w-0">
+                    {% if choice.icon_name %}
+                      <span class="flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-sky-100/70 text-sky-800">
+                        <i data-lucide="{{ choice.icon_name }}" class="h-4 w-4"></i>
+                      </span>
+                    {% endif %}
+                    <span class="truncate">{{ choice.text }}</span>
+                  </div>
+
+                  <div class="flex items-center gap-1.5 flex-none">
+                    {% if choice.is_correct %}
+                      <span class="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2 py-0.5 text-[0.68rem] font-bold text-white">
+                        <i data-lucide="check" class="h-3 w-3"></i> Correct ({{ choice.score_weight }} pts)
+                      </span>
+                    {% elif question.is_objective %}
+                      <span class="text-xs text-ink-mute">0 pts</span>
+                    {% else %}
+                      <span class="inline-flex items-center rounded-md bg-amber-100 px-2 py-0.5 text-[0.68rem] font-bold text-amber-800">
+                        {{ choice.score_weight }} pts
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    {% else %}
+      <div class="card p-12 text-center border border-white/80">
+        <span class="text-5xl block mb-3">🔍</span>
+        <h3 class="font-display text-2xl font-semibold text-ink">No questions found</h3>
+        <p class="mt-2 text-ink-soft max-w-md mx-auto">
+          No questions matched your current search filters. Try clearing your search or reset the filters.
+        </p>
+        <div class="mt-6">
+          <a href="{% url 'assessments:teacher_dashboard' %}" class="btn btn-ghost">
+            Clear all filters
+          </a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Modal Container for Student Preview -->
+<div id="previewModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-ink/60 backdrop-blur-sm flex items-center justify-center p-4 print:hidden"
+     role="dialog" aria-modal="true" aria-labelledby="previewModalTitle">
+  <div class="relative w-full max-w-3xl rounded-3xl bg-white shadow-2xl p-6 sm:p-8 overflow-hidden">
+    <div class="flex items-center justify-between pb-4 border-b border-ink/10 mb-6">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🎒</span>
+        <h3 id="previewModalTitle" class="font-display text-xl font-semibold text-ink">Student Quiz View Preview</h3>
+      </div>
+      <button type="button" onclick="document.getElementById('previewModal').classList.add('hidden')"
+              class="rounded-xl p-2 text-ink-mute hover:bg-slate-100 hover:text-ink transition">
+        <i data-lucide="x" class="h-5 w-5"></i>
+      </button>
+    </div>
+
+    <!-- Target for HTMX question card content -->
+    <div id="previewModalContent">
+      <div class="flex items-center justify-center py-12 text-ink-soft">
+        <i data-lucide="loader-2" class="h-6 w-6 animate-spin mr-2"></i> Loading student preview...
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

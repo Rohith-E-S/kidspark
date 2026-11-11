@@ -28,7 +28,12 @@
             },
             sunbeam: { 100: '#FFF4D6', 400: '#FFC94A', 500: '#F5B301', 600: '#C98F00' },
             coral: { 100: '#FFE9E4', 400: '#FF8A76', 500: '#FF6B5A' },
-            paper: '#F6F5FB',
+            paper: 'rgba(255, 255, 255, 0.75)',
+            ocean: {
+              50: '#E3F2FD', 100: '#BBDEFB', 200: '#90CAF9', 300: '#64B5F6',
+              400: '#42A5F5', 500: '#2196F3', 600: '#1E88E5', 700: '#1976D2',
+              800: '#1565C0', 900: '#0D47A1', DEFAULT: '#2196F3',
+            },
           },
           boxShadow: {
             lift: '0 3px 0 0 rgba(27,26,46,0.12)',
@@ -40,12 +45,23 @@
       }
     }
   </script>
-  <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+  <link rel="stylesheet" href="{% static 'css/custom.css' %}?v=ocean1">
   {% block extra_head %}{% endblock %}
 </head>
 
-<body class="min-h-screen bg-paper font-sans text-ink antialiased {% block body_class %}{% endblock %}"
+<body class="min-h-screen bg-ocean font-sans text-ink antialiased relative selection:bg-sky-200 selection:text-sky-900 {% block body_class %}{% endblock %}"
       hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+
+  <!-- Ambient rising ocean bubbles (matches demos/04-ocean-adventure.html) -->
+  <div class="pointer-events-none fixed inset-0 z-0 overflow-hidden print:hidden" aria-hidden="true">
+    <div class="bubble h-24 w-24 left-[8%] bottom-[-100px]" style="background:rgba(187,222,251,0.35);border:2px solid rgba(255,255,255,0.75);animation-duration:14s;"></div>
+    <div class="bubble h-16 w-16 left-[24%] bottom-[-80px]" style="background:rgba(144,202,249,0.35);border:2px solid rgba(255,255,255,0.75);animation-duration:11s;animation-delay:3s;"></div>
+    <div class="bubble h-12 w-12 left-[48%] bottom-[-60px]" style="background:rgba(225,245,254,0.45);border:2px solid rgba(255,255,255,0.75);animation-duration:16s;animation-delay:6s;"></div>
+    <div class="bubble h-20 w-20 right-[12%] bottom-[-90px]" style="background:rgba(179,229,252,0.35);border:2px solid rgba(255,255,255,0.75);animation-duration:13s;animation-delay:2s;"></div>
+    <div class="bubble h-14 w-14 right-[30%] bottom-[-70px]" style="background:rgba(227,242,253,0.4);border:2px solid rgba(255,255,255,0.75);animation-duration:10s;animation-delay:7s;"></div>
+    <div class="bubble h-8 w-8 left-[72%] bottom-[-50px]" style="background:rgba(255,255,255,0.55);border:1.5px solid rgba(255,255,255,0.85);animation-duration:9s;animation-delay:1s;"></div>
+    <div class="bubble h-10 w-10 left-[38%] bottom-[-50px]" style="background:rgba(255,255,255,0.45);border:1.5px solid rgba(255,255,255,0.85);animation-duration:12s;animation-delay:4s;"></div>
+  </div>
 
   <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-spark-600 focus:px-4 focus:py-2 focus:text-white">
     Skip to content
@@ -65,7 +81,7 @@
     {% endfor %}
   </div>
 
-  <main id="main">
+  <main id="main" class="relative z-10">
     {% block content %}{% endblock %}
   </main>
 

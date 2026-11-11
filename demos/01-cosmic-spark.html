@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KidSpark · Cosmic Spark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { display: ['Fredoka', 'system-ui', 'sans-serif'], sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'] }, colors: { ink: { DEFAULT: '#1B1A2E', soft: '#4A4763', mute: '#7C7994' }, spark: { 50: '#F1EFFE', 100: '#E3E0FD', 200: '#C8C4FB', 300: '#A49EF6', 400: '#7D74EE', 500: '#5B4BE8', 600: '#4A38D0', 700: '#3D2EA8', 800: '#322883', 900: '#2A2368' }, sunbeam: { 100: '#FFF4D6', 400: '#FFC94A', 500: '#F5B301', 600: '#C98F00' }, coral: { 100: '#FFE9E4', 400: '#FF8A76', 500: '#FF6B5A' }, paper: '#F6F5FB' } } } };
+</script>
+<style>
+  body { min-height: 100vh; }
+  .bg-space { background: linear-gradient(180deg, #2A2368 0%, #1B1A2E 45%, #14121F 100%); }
+  .stars { position: absolute; inset: -120px; background-image: radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,.95) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 130px 80px, rgba(255,255,255,.7) 50%, transparent 51%), radial-gradient(1px 1px at 70px 140px, rgba(255,255,255,.85) 50%, transparent 51), radial-gradient(2px 2px at 180px 190px, rgba(255,255,255,.6) 50%, transparent 51); background-size: 260px 260px; background-repeat: repeat; }
+  .spark-mark { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 2px; width: 22px; height: 22px; flex: none; }
+  .spark-mark > span { border-radius: 9999px; background: #C8C4FB; }
+  .spark-mark > span:nth-child(1) { background: #4F5BD5; } .spark-mark > span:nth-child(2) { background: #E8567C; } .spark-mark > span:nth-child(3) { background: #1FA8A0; }
+  .spark-mark > span:nth-child(4) { background: #F0A03C; } .spark-mark > span:nth-child(5) { background: #2E9E5B; } .spark-mark > span:nth-child(6) { background: #C05BD8; }
+  .spark-mark > span:nth-child(7) { background: #7BA82A; } .spark-mark > span:nth-child(8) { background: #F0764C; }
+  .spark-mark, .spark-dial > .ring { grid-template-areas: "a b c" "d x e" "f g h"; }
+  .spark-mark > span:nth-child(1), .spark-dial > .ring > span:nth-child(1) { grid-area: a; } .spark-mark > span:nth-child(2), .spark-dial > .ring > span:nth-child(2) { grid-area: b; }
+  .spark-mark > span:nth-child(3), .spark-dial > .ring > span:nth-child(3) { grid-area: c; } .spark-mark > span:nth-child(4), .spark-dial > .ring > span:nth-child(4) { grid-area: d; }
+  .spark-mark > span:nth-child(5), .spark-dial > .ring > span:nth-child(5) { grid-area: e; } .spark-mark > span:nth-child(6), .spark-dial > .ring > span:nth-child(6) { grid-area: f; }
+  .spark-mark > span:nth-child(7), .spark-dial > .ring > span:nth-child(7) { grid-area: g; } .spark-mark > span:nth-child(8), .spark-dial > .ring > span:nth-child(8) { grid-area: h; }
+  .planet { width: 230px; height: 230px; border-radius: 50%; background: radial-gradient(circle at 32% 30%, #9D92FF, #5B4BE8 45%, #322883 78%, #241d4e); box-shadow: 0 0 90px 24px rgba(91,75,232,.45), inset -30px -40px 60px rgba(10,8,30,.45); }
+  .moon { position: absolute; top: 8%; right: 10%; width: 54px; height: 54px; border-radius: 50%; background: #F6F5FB; box-shadow: 0 0 40px 10px rgba(246,245,251,.35); }
+  .shooting { position: absolute; top: 14%; left: -12px; width: 2px; height: 2px; border-radius: 9999px; background: #fff; opacity: 0; animation: shoot 9s linear infinite; }
+  @keyframes shoot { 0% { transform: translate(0,0) rotate(-45deg); opacity: 0 } 3% { opacity: 1 } 10% { transform: translate(300px,190px) rotate(-45deg); opacity: 0 } 100% { transform: translate(300px,190px) rotate(-45deg); opacity: 0 } }
+</style>
+</head>
+<body class="bg-space font-sans antialiased overflow-hidden">
+  <header class="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+    <a href="#" class="flex items-center gap-3">
+      <span class="spark-mark" aria-hidden="true">
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+      </span>
+      <span class="font-display text-xl font-semibold tracking-tight text-white">KidSpark</span>
+    </a>
+    <nav class="flex items-center gap-5 text-sm font-semibold text-white/70">
+      <a href="#" class="transition hover:text-white">Home</a>
+      <a href="#" class="transition hover:text-white">Take assessment</a>
+      <a href="#" class="transition hover:text-white">Reports</a>
+    </nav>
+  </header>
+
+  <main class="relative z-10 mx-auto grid max-w-6xl items-center gap-16 px-5 py-16 lg:grid-cols-2 lg:py-24">
+    <div>
+      <p class="text-[0.7rem] font-bold tracking-[0.14em] uppercase text-white/60">Aptitude + interest · ages 6–16</p>
+      <h1 class="mt-4 font-display text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-[3.4rem]">
+        Find out how your child <span class="relative whitespace-nowrap">thinks</span> — and what they'd love to do with it.
+      </h1>
+      <p class="mt-6 max-w-xl text-lg leading-relaxed text-white/70">
+        KidSpark runs one 24-question session across two pillars: twelve brain puzzles scored right or wrong, and twelve "what do you love?" scenarios scored by preference. The two halves combine into a persona, a radar of strengths, and a weekly plan you can actually run at home.
+      </p>
+      <div class="mt-9 flex flex-wrap items-center gap-3">
+        <a href="#" class="inline-flex items-center justify-center gap-2 rounded-xl bg-spark-500 px-7 py-4 font-semibold text-white shadow-[0_3px_0_0_#3D2EA8] transition hover:bg-spark-600">
+          <span class="text-lg">▶</span> Start the adventure
+        </a>
+        <a href="#" class="inline-flex items-center justify-center rounded-xl bg-white/10 px-7 py-4 font-semibold text-white ring-1 ring-white/20 transition hover:bg-white/15">Create a parent account</a>
+      </div>
+      <dl class="mt-10 grid max-w-lg grid-cols-3 gap-4 border-t border-white/10 pt-6">
+        <div>
+          <dt class="text-[0.7rem] font-bold tracking-[0.14em] uppercase text-white/50">Dimensions</dt>
+          <dd class="mt-1 font-display text-3xl font-semibold text-spark-300">8</dd>
+        </div>
+        <div>
+          <dt class="text-[0.7rem] font-bold tracking-[0.14em] uppercase text-white/50">Questions</dt>
+          <dd class="mt-1 font-display text-3xl font-semibold text-spark-300">24</dd>
+        </div>
+        <div>
+          <dt class="text-[0.7rem] font-bold tracking-[0.14em] uppercase text-white/50">Time needed</dt>
+          <dd class="mt-1 font-display text-3xl font-semibold text-spark-300">15<span class="text-lg"> min</span></dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="relative mx-auto w-full max-w-md">
+      <div class="absolute -inset-10 rounded-full bg-spark-600/30 blur-3xl"></div>
+      <div class="relative rounded-4xl border border-white/10 bg-white/5 p-8 backdrop-blur">
+        <div class="planet"></div>
+        <div class="moon"></div>
+        <div class="shooting"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="relative z-10 border-t border-white/10 py-8 text-center text-sm text-white/50">
+    <p>KidSpark · 8 dimensions · 24 questions · one learning path.</p>
+  </footer>
+
+</body>
+</html>

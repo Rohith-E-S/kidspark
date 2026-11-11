@@ -1,10 +1,34 @@
 /* ==========================================================================
-   KidSpark design layer
+   KidSpark design layer — Ocean Adventure Theme
    --------------------------------------------------------------------------
-   Tailwind covers layout and utility work. This file holds only the pieces
-   Tailwind utilities express badly: the spark mark (our 8-dimension logo),
-   the sticker buttons, the workbook texture, and print rules.
+   Tailwind covers layout and utility work. This file holds the Ocean Adventure
+   theme styles, spark mark, sticker buttons, glass cards, and animations.
    ========================================================================== */
+
+/* --- Ocean Adventure backdrop & bubbles ------------------------------------
+   Matches demos/04-ocean-adventure.html: cool gradient of pale sky (#E3F2FD),
+   mid ocean (#B3E5FC), and deep ocean (#81D4FA).
+   -------------------------------------------------------------------------- */
+.bg-ocean {
+  background: linear-gradient(180deg, #E3F2FD 0%, #B3E5FC 55%, #81D4FA 100%) no-repeat fixed;
+  background-size: cover;
+  min-height: 100vh;
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.45);
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  animation: rise 12s linear infinite;
+  pointer-events: none;
+}
+@keyframes rise {
+  0% { transform: translateY(0) scale(0.85); opacity: 0; }
+  10% { opacity: 0.85; }
+  85% { opacity: 0.75; }
+  100% { transform: translateY(-120vh) scale(1.15); opacity: 0; }
+}
 
 /* --- The spark mark -------------------------------------------------------
    Eight dots in a ring, one per assessment dimension. It is the same mark at
@@ -121,15 +145,20 @@ a:hover > .spark-mark > span { transform: scale(0.72); background-color: #5B4BE8
 .btn-danger { background: #fff; color: #FF6B5A; border-color: rgba(255, 107, 90, 0.35); }
 .btn-danger:hover { background: #FFE9E4; }
 
-/* --- Cards --------------------------------------------------------------- */
+/* --- Ocean Adventure Glass Cards ------------------------------------------ */
 .card {
-  background: #fff;
-  border: 1px solid rgba(27, 26, 46, 0.07);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 1.25rem;
-  box-shadow: 0 2px 0 0 rgba(27, 26, 46, 0.05);
+  box-shadow: 0 4px 20px -2px rgba(13, 71, 161, 0.08), 0 2px 0 0 rgba(255, 255, 255, 0.6);
 }
 .card-lift { transition: transform .18s ease, box-shadow .18s ease; }
-.card-lift:hover { transform: translateY(-3px); box-shadow: 0 6px 0 0 rgba(27, 26, 46, 0.09); }
+.card-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px -2px rgba(13, 71, 161, 0.16), 0 3px 0 0 rgba(255, 255, 255, 0.8);
+}
 
 /* Eyebrow labels: the small, quiet signposts above section titles. */
 .eyebrow {
@@ -144,28 +173,34 @@ a:hover > .spark-mark > span { transform: scale(0.72); background-color: #5B4BE8
 .tag-dot { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 9999px; flex: none; }
 .tag-ring { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 9999px; border-width: 2px; border-style: solid; flex: none; }
 
-/* --- Quiz answer cards --------------------------------------------------- */
+/* --- Quiz answer cards (Ocean Glass) ------------------------------------- */
 .answer-card {
   display: flex;
   width: 100%;
   align-items: center;
   gap: 1rem;
   border-radius: 1.25rem;
-  border: 2px solid rgba(27, 26, 46, 0.08);
-  background: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   padding: 1rem 1.25rem;
   text-align: left;
   font-weight: 600;
   cursor: pointer;
   transition: transform .14s ease, border-color .14s ease, background-color .14s ease, box-shadow .14s ease;
 }
-.answer-card:hover { transform: translateY(-2px); border-color: #A49EF6; box-shadow: 0 4px 0 0 rgba(91, 75, 232, 0.18); }
-.answer-card:has(input:checked) {
-  border-color: #5B4BE8;
-  background: #F1EFFE;
-  box-shadow: 0 4px 0 0 rgba(91, 75, 232, 0.25);
+.answer-card:hover {
+  transform: translateY(-2px);
+  border-color: #38BDF8;
+  box-shadow: 0 4px 14px 0 rgba(2, 132, 199, 0.2);
 }
-.answer-card:has(input:focus-visible) { outline: 3px solid #A49EF6; outline-offset: 2px; }
+.answer-card:has(input:checked) {
+  border-color: #0284C7;
+  background: #E0F2FE;
+  box-shadow: 0 4px 14px 0 rgba(2, 132, 199, 0.28);
+}
+.answer-card:has(input:focus-visible) { outline: 3px solid #38BDF8; outline-offset: 2px; }
 .answer-card .answer-icon {
   display: flex;
   align-items: center;
@@ -176,23 +211,23 @@ a:hover > .spark-mark > span { transform: scale(0.72); background-color: #5B4BE8
   flex: none;
 }
 .answer-card:has(input:checked) .answer-icon { background: #fff !important; }
-.answer-card .choice-mark { border-color: rgba(27, 26, 46, 0.15); }
+.answer-card .choice-mark { border-color: rgba(2, 132, 199, 0.25); }
 .answer-card .choice-dot { opacity: 0; transition: opacity .15s ease; }
-.answer-card:has(input:checked) .choice-mark { border-color: #5B4BE8; }
+.answer-card:has(input:checked) .choice-mark { border-color: #0284C7; }
 .answer-card:has(input:checked) .choice-dot { opacity: 1; }
 
 /* Alpine's cloak: hide until the component is initialised. */
 [x-cloak] { display: none !important; }
 
-/* --- Workbook texture ---------------------------------------------------- */
+/* --- Workbook texture with subtle ocean water dots ----------------------- */
 .paper-grid {
-  background-image: radial-gradient(rgba(27, 26, 46, 0.07) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(2, 132, 199, 0.09) 1.2px, transparent 1.2px);
   background-size: 22px 22px;
 }
 
-/* --- Progress ------------------------------------------------------------ */
-.progress-track { height: 0.7rem; border-radius: 9999px; background: rgba(27, 26, 46, 0.08); overflow: hidden; }
-.progress-fill { height: 100%; border-radius: 9999px; background: linear-gradient(90deg, #7D74EE, #5B4BE8); transition: width .5s ease; }
+/* --- Progress (Ocean Gradient) ------------------------------------------- */
+.progress-track { height: 0.7rem; border-radius: 9999px; background: rgba(2, 132, 199, 0.12); overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 9999px; background: linear-gradient(90deg, #38BDF8, #0284C7); transition: width .5s ease; }
 
 /* --- HTMX ---------------------------------------------------------------- */
 .htmx-request .htmx-dim { opacity: .45; }
@@ -205,6 +240,24 @@ details.review-row > summary { cursor: pointer; list-style: none; }
 details.review-row > summary::-webkit-details-marker { display: none; }
 details.review-row[open] > summary .chevron { transform: rotate(90deg); }
 .chevron { transition: transform .18s ease; }
+
+/* --- Teacher Portal Form Controls ---------------------------------------- */
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  border-radius: 0.875rem;
+  border: 1px solid rgba(2, 132, 199, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.75rem 1rem;
+  color: #1B1A2E;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: #0284C7;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+  background: #fff;
+}
 
 /* --- Print: a clean, single-report sheet --------------------------------- */
 @media print {

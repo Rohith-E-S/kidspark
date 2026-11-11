@@ -10,11 +10,17 @@ from assessments.models import AssessmentSession
 
 @login_required
 def report_detail(request, session_id):
-    session = get_object_or_404(
-        AssessmentSession.objects.select_related('child', 'child__parent'),
-        id=session_id,
-        child__parent=request.user,
-    )
+    if request.user.is_staff:
+        session = get_object_or_404(
+            AssessmentSession.objects.select_related('child', 'child__parent'),
+            id=session_id,
+        )
+    else:
+        session = get_object_or_404(
+            AssessmentSession.objects.select_related('child', 'child__parent'),
+            id=session_id,
+            child__parent=request.user,
+        )
 
     if not session.is_completed:
         messages.info(request, 'That assessment is still in progress.')

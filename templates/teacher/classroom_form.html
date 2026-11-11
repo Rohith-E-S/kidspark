@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load spark %}
+
+{% block title %}{{ title }} · Teacher Portal{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-5 py-8">
+
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-2 text-sm text-ink-mute mb-4">
+    <a href="{% url 'assessments:classroom_list' %}" class="hover:text-ink transition flex items-center gap-1">
+      <i data-lucide="arrow-left" class="h-4 w-4"></i> Classrooms
+    </a>
+    <span>/</span>
+    <span class="text-ink font-semibold">{{ title }}</span>
+  </nav>
+
+  <header class="mb-8">
+    <h1 class="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+      {{ title }}
+    </h1>
+    <p class="mt-2 text-ink-soft">
+      Define the classroom cohort name, grade level, and academic calendar year.
+    </p>
+  </header>
+
+  <form method="post" class="space-y-6" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="rounded-2xl border border-coral-500/30 bg-coral-100 px-5 py-4 text-sm font-medium text-coral-600">
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="card p-6 sm:p-8 border border-white/80 shadow-md space-y-6">
+      <div>
+        <label for="{{ form.name.id_for_label }}" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-ink-soft">
+          Classroom Name *
+        </label>
+        {{ form.name }}
+        {% for error in form.name.errors %}<p class="mt-1 text-xs text-coral-500">{{ error }}</p>{% endfor %}
+        <p class="mt-1 text-xs text-ink-mute">E.g., "Grade 5 - Section A (Dolphins)" or "Year 7 STEM Cohort".</p>
+      </div>
+
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label for="{{ form.grade.id_for_label }}" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-ink-soft">
+            Grade Level / Standard *
+          </label>
+          {{ form.grade }}
+          {% for error in form.grade.errors %}<p class="mt-1 text-xs text-coral-500">{{ error }}</p>{% endfor %}
+          <p class="mt-1 text-xs text-ink-mute">E.g., "5th Grade", "Class 6", or "Grade 8".</p>
+        </div>
+
+        <div>
+          <label for="{{ form.academic_year.id_for_label }}" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-ink-soft">
+            Academic Year
+          </label>
+          {{ form.academic_year }}
+          {% for error in form.academic_year.errors %}<p class="mt-1 text-xs text-coral-500">{{ error }}</p>{% endfor %}
+          <p class="mt-1 text-xs text-ink-mute">E.g., "2026-2027".</p>
+        </div>
+      </div>
+
+      <div>
+        <label for="{{ form.description.id_for_label }}" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-ink-soft">
+          Cohort Notes / Description (Optional)
+        </label>
+        {{ form.description }}
+        {% for error in form.description.errors %}<p class="mt-1 text-xs text-coral-500">{{ error }}</p>{% endfor %}
+        <p class="mt-1 text-xs text-ink-mute">Optional educator notes about this class or learning group.</p>
+      </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="flex items-center justify-between gap-4 pt-4">
+      <a href="{% url 'assessments:classroom_list' %}" class="btn btn-ghost">
+        Cancel
+      </a>
+      <button type="submit" class="btn btn-primary btn-lg shadow-lift">
+        <i data-lucide="check" class="h-5 w-5"></i>
+        {% if is_edit %}Save Changes{% else %}Create Classroom{% endif %}
+      </button>
+    </div>
+  </form>
+
+</div>
+{% endblock %}
