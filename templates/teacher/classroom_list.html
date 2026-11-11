@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load spark %}
+
+{% block title %}Classrooms &amp; Students · Educator Portal{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-5 py-8">
+
+  <!-- Top Hero Header -->
+  <header class="flex flex-wrap items-end justify-between gap-6 pb-6 border-b border-white/50">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-500/20 text-sky-800 text-lg font-bold">
+          🎓
+        </span>
+        <p class="eyebrow text-sky-900 font-bold">Educator &amp; Teacher Portal</p>
+      </div>
+      <h1 class="mt-2 font-display text-4xl font-semibold tracking-tight text-ink">
+        Classrooms &amp; Student Cohorts
+      </h1>
+      <p class="mt-2 max-w-2xl text-ink-soft">
+        Organize students by classes or cohorts, track aptitude testing progress, and inspect collective strengths analytics.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <a href="{% url 'assessments:classroom_create' %}" class="btn btn-primary btn-lg shadow-lift">
+        <i data-lucide="plus-circle" class="h-5 w-5"></i> Create Classroom
+      </a>
+      <a href="{% url 'accounts:dashboard' %}" class="btn btn-ghost">
+        <i data-lucide="layout-dashboard" class="h-4 w-4"></i> Parent View
+      </a>
+    </div>
+  </header>
+
+  <!-- Educator Navigation Tabs -->
+  <nav class="mt-6 flex items-center gap-2 border-b border-white/60 pb-2">
+    <a href="{% url 'assessments:teacher_dashboard' %}"
+       class="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition text-ink-soft hover:bg-white/60 hover:text-ink">
+      <i data-lucide="help-circle" class="h-4 w-4"></i> Question Bank
+    </a>
+    <a href="{% url 'assessments:classroom_list' %}"
+       class="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition bg-sky-500 text-white shadow-lift">
+      <i data-lucide="users" class="h-4 w-4"></i> Classrooms &amp; Students
+    </a>
+  </nav>
+
+  <!-- Metric Badges -->
+  <dl class="mt-8 grid gap-4 sm:grid-cols-3">
+    <div class="card p-5">
+      <dt class="eyebrow flex items-center gap-1.5">
+        <span class="tag-dot bg-sky-500"></span> Total Classrooms
+      </dt>
+      <dd class="mt-2 flex items-baseline justify-between">
+        <span class="font-display text-3xl font-semibold text-ink">{{ total_classrooms }}</span>
+        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-sky-100 text-sky-800">
+          Cohorts active
+        </span>
+      </dd>
+    </div>
+
+    <div class="card p-5">
+      <dt class="eyebrow flex items-center gap-1.5">
+        <span class="tag-ring border-sunbeam-500"></span> Total Enrolled Students
+      </dt>
+      <dd class="mt-2 flex items-baseline justify-between">
+        <span class="font-display text-3xl font-semibold text-amber-600">{{ total_enrolled_students }}</span>
+        <span class="text-xs text-ink-mute">Across all classrooms</span>
+      </dd>
+    </div>
+
+    <div class="card p-5">
+      <dt class="eyebrow flex items-center gap-1.5">
+        <i data-lucide="award" class="h-3.5 w-3.5 text-emerald-600"></i> Assessment Status
+      </dt>
+      <dd class="mt-2 flex items-baseline justify-between">
+        <span class="font-display text-3xl font-semibold text-emerald-600">Active</span>
+        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">
+          8 Dimensions Monitored
+        </span>
+      </dd>
+    </div>
+  </dl>
+
+  <!-- Classroom Grid -->
+  <div class="mt-8">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-display text-xl font-semibold text-ink flex items-center gap-2">
+        <i data-lucide="school" class="h-5 w-5 text-sky-600"></i> Your Classrooms
+      </h2>
+      <a href="{% url 'assessments:classroom_create' %}" class="btn btn-outline btn-sm">
+        <i data-lucide="plus" class="h-4 w-4"></i> New Cohort
+      </a>
+    </div>
+
+    {% if classrooms %}
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {% for c in classrooms %}
+          <div class="card p-6 flex flex-col justify-between transition hover:-translate-y-1 hover:shadow-lg border border-white/80">
+            <div>
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex flex-wrap gap-1.5">
+                  {% if c.grade %}
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800 border border-sky-200">
+                      {{ c.grade }}
+                    </span>
+                  {% endif %}
+                  {% if c.academic_year %}
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/80 text-ink-soft border border-ink/10">
+                      {{ c.academic_year }}
+                    </span>
+                  {% endif %}
+                </div>
+                <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200" title="Classroom Code">
+                  #{{ c.code }}
+                </span>
+              </div>
+
+              <h3 class="mt-3 font-display text-2xl font-semibold text-ink">
+                <a href="{% url 'assessments:classroom_detail' c.id %}" class="hover:text-sky-600 transition">
+                  {{ c.name }}
+                </a>
+              </h3>
+
+              {% if c.description %}
+                <p class="mt-2 text-xs text-ink-soft line-clamp-2">
+                  {{ c.description }}
+                </p>
+              {% endif %}
+
+              <div class="mt-5 grid grid-cols-2 gap-2 rounded-2xl bg-white/60 p-3 border border-ink/5">
+                <div class="text-center">
+                  <p class="text-[0.68rem] font-bold uppercase tracking-wider text-ink-mute">Students</p>
+                  <p class="font-display text-xl font-bold text-ink mt-0.5">{{ c.total_students }}</p>
+                </div>
+                <div class="text-center border-l border-ink/10">
+                  <p class="text-[0.68rem] font-bold uppercase tracking-wider text-ink-mute">Tests Done</p>
+                  <p class="font-display text-xl font-bold text-emerald-600 mt-0.5">{{ c.completed_tests_count }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-ink/5 flex items-center justify-between gap-2">
+              <a href="{% url 'assessments:classroom_detail' c.id %}" class="btn btn-primary btn-sm flex-1 justify-center">
+                <i data-lucide="bar-chart-2" class="h-4 w-4"></i> View Cohort
+              </a>
+              <a href="{% url 'assessments:student_add' c.id %}" class="btn btn-ghost btn-sm" title="Add Student">
+                <i data-lucide="user-plus" class="h-4 w-4"></i>
+              </a>
+              <a href="{% url 'assessments:classroom_edit' c.id %}" class="btn btn-ghost btn-sm" title="Edit Classroom">
+                <i data-lucide="edit-3" class="h-4 w-4"></i>
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card p-12 text-center border-dashed border-2 border-sky-200">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-sky-100 text-sky-600 text-2xl mb-4">
+          <i data-lucide="school" class="h-8 w-8"></i>
+        </div>
+        <h3 class="font-display text-2xl font-semibold text-ink">No Classrooms Yet</h3>
+        <p class="mt-2 max-w-md mx-auto text-sm text-ink-soft">
+          Create your first classroom cohort to group students, administer assessments, and view aggregated intelligence profiles.
+        </p>
+        <div class="mt-6">
+          <a href="{% url 'assessments:classroom_create' %}" class="btn btn-primary btn-lg shadow-lift">
+            <i data-lucide="plus-circle" class="h-5 w-5"></i> Create Your First Classroom
+          </a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

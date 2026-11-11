@@ -42,6 +42,15 @@
         </div>
       </div>
 
+      <div>
+        <label for="{{ form.class_code.id_for_label }}" class="mb-1.5 block text-sm font-semibold text-ink">
+          Classroom Join Code <span class="text-ink-mute font-normal">(optional)</span>
+        </label>
+        {{ form.class_code }}
+        <p class="mt-1 text-xs text-ink-mute">If your child's teacher provided a class code (e.g. #ABC123), enter it here to link to their class.</p>
+        {% for error in form.class_code.errors %}<p class="mt-1 text-sm text-coral-500">{{ error }}</p>{% endfor %}
+      </div>
+
       <fieldset>
         <legend class="mb-2 text-sm font-semibold text-ink">Avatar colour</legend>
         <div class="flex flex-wrap gap-2">

@@ -119,6 +119,88 @@ class ChildProfileViewTests(TestCase):
         self.assertIn(reverse('accounts:login'), response['Location'])
 
 
+class ClassJoinCodeTests(TestCase):
+    def setUp(self):
+        self.teacher = User.objects.create_user('teacher_sarah', password='pass123', is_staff=True)
+        self.parent = User.objects.create_user('parent_bob', password='pass123')
+        self.child = ChildProfile.objects.create(
+            parent=self.parent, name='Toby', age=10, grade='5th Grade'
+        )
+        from accounts.models import Classroom
+        self.classroom = Classroom.objects.create(
+            teacher=self.teacher, name='Grade 5 Alpha', grade='5th Grade', code='ALPH55'
+        )
+
+    def test_join_classroom_requires_login(self):
+        res = self.client.get(reverse('accounts:join_classroom'))
+        self.assertEqual(res.status_code, 302)
+
+    def test_join_classroom_page_renders_with_child(self):
+        self.client.force_login(self.parent)
+        res = self.client.get(reverse('accounts:join_classroom'))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'Join a Classroom')
+        self.assertContains(res, 'Toby')
+
+    def test_join_classroom_with_valid_code(self):
+        self.client.force_login(self.parent)
+        payload = {
+            'child': self.child.id,
+            'class_code': 'ALPH55',
+        }
+        res = self.client.post(reverse('accounts:join_classroom'), data=payload)
+        self.assertRedirects(res, reverse('accounts:dashboard'))
+        self.child.refresh_from_db()
+        self.assertEqual(self.child.classroom, self.classroom)
+
+    def test_join_classroom_case_insensitive_and_hash_stripped(self):
+        self.client.force_login(self.parent)
+        payload = {
+            'child': self.child.id,
+            'class_code': ' #alph55 ',
+        }
+        res = self.client.post(reverse('accounts:join_classroom'), data=payload)
+        self.assertRedirects(res, reverse('accounts:dashboard'))
+        self.child.refresh_from_db()
+        self.assertEqual(self.child.classroom, self.classroom)
+
+    def test_join_classroom_invalid_code_rejected(self):
+        self.client.force_login(self.parent)
+        payload = {
+            'child': self.child.id,
+            'class_code': 'NONEXIST',
+        }
+        res = self.client.post(reverse('accounts:join_classroom'), data=payload)
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'No classroom found matching code')
+        self.child.refresh_from_db()
+        self.assertIsNone(self.child.classroom)
+
+    def test_leave_classroom(self):
+        self.child.classroom = self.classroom
+        self.child.save()
+
+        self.client.force_login(self.parent)
+        res = self.client.post(reverse('accounts:leave_classroom', args=[self.child.id]))
+        self.assertRedirects(res, reverse('accounts:dashboard'))
+        self.child.refresh_from_db()
+        self.assertIsNone(self.child.classroom)
+
+    def test_child_create_with_join_code(self):
+        self.client.force_login(self.parent)
+        res = self.client.post(reverse('accounts:child_create'), {
+            'name': 'Sammy',
+            'age': 8,
+            'grade': '3rd',
+            'avatar_color': 'sky',
+            'class_code': 'alph55',
+        })
+        self.assertEqual(res.status_code, 302)
+        sammy = ChildProfile.objects.get(name='Sammy')
+        self.assertEqual(sammy.classroom, self.classroom)
+
+
+
 class RegistrationTests(TestCase):
     def test_register_creates_and_logs_in_user(self):
         response = self.client.post(reverse('accounts:register'), {

@@ -1,0 +1,94 @@
+{% load spark %}
+<div class="space-y-6">
+  <!-- Top meta pill -->
+  <div class="flex items-center justify-between text-xs text-ink-mute">
+    <div class="flex items-center gap-2">
+      <span class="font-bold text-ink">Simulated Quiz Card · Student View</span>
+      <span>·</span>
+      <span>{{ question.get_age_group_display }}</span>
+    </div>
+    <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold
+      {% if question.difficulty_weight == 1 %}bg-emerald-50 text-emerald-700
+      {% elif question.difficulty_weight == 2 %}bg-sky-50 text-sky-700
+      {% else %}bg-purple-50 text-purple-700{% endif %}">
+      Level {{ question.difficulty_weight }} · {{ question.difficulty_label }}
+    </span>
+  </div>
+
+  <!-- The Student Question Card -->
+  <div class="card overflow-hidden shadow-lg border border-white/90">
+    <!-- Header banner in category color -->
+    <div class="border-b border-ink/5 px-6 py-4"
+         style="background:{{ question.category.code|cat_tint }}">
+      <p class="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em]"
+         style="color:{{ question.category.code|cat_color }}">
+        <i data-lucide="{{ question.category.icon_name }}" class="h-4 w-4"></i>
+        {{ question.category.name }}
+        {% if question.is_objective %}
+          <span class="rounded-full bg-white/70 px-2 py-0.5 text-[0.62rem] font-bold normal-case tracking-normal text-ink-soft">
+            {{ question.difficulty_label }}
+          </span>
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="p-6 sm:p-8">
+      <div class="text-center">
+        {% if question.visual_hint %}
+          <p class="inline-block rounded-xl bg-sky-50 border border-sky-100 px-4 py-2 font-mono text-base font-semibold tracking-wide text-sky-900 sm:text-lg">
+            {{ question.visual_hint }}
+          </p>
+        {% endif %}
+
+        <h3 class="mt-4 font-display text-2xl font-semibold leading-snug text-ink">
+          {{ question.text }}
+        </h3>
+
+        {% if not question.is_objective %}
+          <p class="mt-2 text-sm text-ink-mute">There is no wrong answer here — pick what feels true for you.</p>
+        {% endif %}
+      </div>
+
+      <div class="mt-7 grid gap-3 {% if choices|length > 3 %}sm:grid-cols-2{% endif %}">
+        {% for choice in choices %}
+          <div class="answer-card pointer-events-none {% if choice.is_correct %}ring-2 ring-emerald-500 bg-emerald-50/60{% endif %}">
+            {% if choice.icon_name %}
+              <span class="answer-icon"
+                    style="background:{{ question.category.code|cat_tint }}; color:{{ question.category.code|cat_color }}">
+                <i data-lucide="{{ choice.icon_name }}" class="h-5 w-5"></i>
+              </span>
+            {% endif %}
+            <span class="flex-1 text-base leading-snug text-ink">{{ choice.text }}</span>
+            {% if choice.is_correct %}
+              <span class="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-emerald-600 text-white text-xs font-bold">
+                ✓
+              </span>
+            {% elif not question.is_objective %}
+              <span class="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md">
+                {{ choice.score_weight }} pts
+              </span>
+            {% else %}
+              <span class="flex h-6 w-6 flex-none items-center justify-center rounded-full border-2 border-slate-200"></span>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between pt-2">
+    <p class="text-xs text-ink-mute">
+      {% if question.is_objective %}
+        Cognitive Aptitude: <strong>1 right answer</strong> (10 pts), normalized in reports.
+      {% else %}
+        Interest Scenario: Weights represent child affinity (0 = not for me, 5 = sometimes, 10 = love it).
+      {% endif %}
+    </p>
+    <a href="{% url 'assessments:teacher_question_edit' question.id %}" class="btn btn-primary btn-sm">
+      <i data-lucide="pencil" class="h-3.5 w-3.5"></i> Edit This Question
+    </a>
+  </div>
+</div>
+<script>
+  if (window.lucide) { lucide.createIcons(); }
+</script>

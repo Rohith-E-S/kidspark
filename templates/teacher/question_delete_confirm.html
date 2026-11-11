@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load spark %}
+
+{% block title %}Delete Question #{{ question.order }} · Teacher Portal{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-xl px-5 py-16">
+
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-2 text-sm text-ink-mute mb-4">
+    <a href="{% url 'assessments:teacher_dashboard' %}" class="hover:text-ink transition flex items-center gap-1">
+      <i data-lucide="arrow-left" class="h-4 w-4"></i> Teacher Portal
+    </a>
+    <span>/</span>
+    <span class="text-ink font-semibold">Delete Question #{{ question.order }}</span>
+  </nav>
+
+  <div class="card p-6 sm:p-8 border border-white/80 shadow-xl">
+    <div class="flex items-center gap-3 text-coral-600 mb-4">
+      <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-coral-100 text-coral-600">
+        <i data-lucide="alert-triangle" class="h-6 w-6"></i>
+      </span>
+      <div>
+        <h1 class="font-display text-2xl font-semibold text-ink">Delete Question?</h1>
+        <p class="text-sm text-ink-mute">This will remove the question from the question bank.</p>
+      </div>
+    </div>
+
+    <!-- Question Summary -->
+    <div class="my-6 rounded-2xl border border-white/80 bg-white/70 p-4 space-y-2">
+      <div class="flex items-center gap-2">
+        <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-ink text-white">#{{ question.order }}</span>
+        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full"
+              style="background:{{ question.category.code|cat_tint }}; color:{{ question.category.code|cat_color }}">
+          {{ question.category.name }}
+        </span>
+        <span class="text-xs text-ink-mute">· {{ question.get_age_group_display }}</span>
+      </div>
+      <p class="font-display text-lg font-semibold text-ink pt-1">{{ question.text }}</p>
+      {% if question.visual_hint %}
+        <p class="font-mono text-xs text-sky-800 bg-sky-50 px-2.5 py-1 rounded-lg inline-block">
+          {{ question.visual_hint }}
+        </p>
+      {% endif %}
+    </div>
+
+    {% if response_count > 0 %}
+      <div class="rounded-xl bg-amber-50 border border-amber-200 p-4 text-xs text-amber-900 mb-6 flex items-start gap-2.5">
+        <i data-lucide="info" class="h-4 w-4 flex-none mt-0.5 text-amber-700"></i>
+        <span>
+          <strong>Caution:</strong> This question has <strong>{{ response_count }}</strong> recorded student response{{ response_count|pluralize }} in past sessions. Removing it will delete those response links.
+        </span>
+      </div>
+    {% endif %}
+
+    <form method="post" class="flex items-center justify-end gap-3 pt-2">
+      {% csrf_token %}
+      <a href="{% url 'assessments:teacher_dashboard' %}" class="btn btn-ghost">
+        Cancel &amp; Keep Question
+      </a>
+      <button type="submit" class="btn btn-danger">
+        <i data-lucide="trash-2" class="h-4 w-4"></i> Yes, Delete Question
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

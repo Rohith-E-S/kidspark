@@ -7,8 +7,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from accounts.forms import ChildProfileForm, KidSparkLoginForm, RegisterForm
-from accounts.models import ChildProfile
+from accounts.forms import ChildProfileForm, JoinClassroomForm, KidSparkLoginForm, RegisterForm
+from accounts.models import ChildProfile, Classroom
 
 DEMO_USERNAME = 'demo_parent'
 DEMO_PASSWORD = 'demo1234'
@@ -170,3 +170,59 @@ def child_delete(request, child_id):
     child.delete()
     messages.info(request, f'{name}\'s profile and all their reports were removed.')
     return redirect('accounts:dashboard')
+
+
+@login_required
+def join_classroom(request):
+    """Allow a parent to enroll their child in a classroom using an educator's join code."""
+    children = request.user.children.all()
+    if not children.exists():
+        messages.info(request, 'Please create a child profile first before joining a classroom.')
+        return redirect('accounts:child_create')
+
+    initial = {}
+    code_param = request.GET.get('code', '').strip()
+    child_id_param = request.GET.get('child')
+
+    if code_param:
+        initial['class_code'] = code_param.lstrip('#').upper()
+    if child_id_param and children.filter(id=child_id_param).exists():
+        initial['child'] = child_id_param
+
+    if request.method == 'POST':
+        form = JoinClassroomForm(request.user, request.POST)
+        if form.is_valid():
+            child = form.cleaned_data['child']
+            classroom = form.cleaned_data['class_code']
+            if child.classroom == classroom:
+                messages.info(request, f'{child.name} is already enrolled in {classroom.name}.')
+            else:
+                child.classroom = classroom
+                child.save(update_fields=['classroom'])
+                messages.success(
+                    request,
+                    f'🎉 {child.name} successfully joined {classroom.name} (Grade: {classroom.grade})!'
+                )
+            return redirect('accounts:dashboard')
+    else:
+        form = JoinClassroomForm(request.user, initial=initial)
+
+    return render(request, 'accounts/join_classroom.html', {
+        'form': form,
+        'children_count': children.count(),
+        'code_param': code_param,
+    })
+
+
+@login_required
+@require_POST
+def leave_classroom(request, child_id):
+    """Allow a parent to unenroll their child from a classroom cohort."""
+    child = get_object_or_404(ChildProfile, id=child_id, parent=request.user)
+    if child.classroom:
+        class_name = child.classroom.name
+        child.classroom = None
+        child.save(update_fields=['classroom'])
+        messages.info(request, f'{child.name} has left {class_name}.')
+    return redirect('accounts:dashboard')
+

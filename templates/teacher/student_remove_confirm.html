@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load spark %}
+
+{% block title %}Unenroll {{ student.name }} · Teacher Portal{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-xl px-5 py-16">
+
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-2 text-sm text-ink-mute mb-4">
+    {% if classroom %}
+      <a href="{% url 'assessments:classroom_detail' classroom.id %}" class="hover:text-ink transition flex items-center gap-1">
+        <i data-lucide="arrow-left" class="h-4 w-4"></i> {{ classroom.name }}
+      </a>
+    {% else %}
+      <a href="{% url 'assessments:classroom_list' %}" class="hover:text-ink transition flex items-center gap-1">
+        <i data-lucide="arrow-left" class="h-4 w-4"></i> Classrooms
+      </a>
+    {% endif %}
+    <span>/</span>
+    <span class="text-ink font-semibold">Unenroll Student</span>
+  </nav>
+
+  <div class="card p-6 sm:p-8 border border-white/80 shadow-xl">
+    <div class="flex items-center gap-3 text-coral-600 mb-4">
+      <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-coral-100 text-coral-600">
+        <i data-lucide="user-minus" class="h-6 w-6"></i>
+      </span>
+      <div>
+        <h1 class="font-display text-2xl font-semibold text-ink">Unenroll Student?</h1>
+        <p class="text-sm text-ink-mute">Remove student from cohort {{ classroom.name }}.</p>
+      </div>
+    </div>
+
+    <!-- Student Summary -->
+    <div class="my-6 rounded-2xl border border-white/80 bg-white/70 p-4 space-y-2">
+      <div class="flex items-center gap-3">
+        <span class="flex h-10 w-10 items-center justify-center rounded-2xl font-display font-bold text-base text-white shadow-sm"
+              style="background-color: var(--color-{{ student.avatar_color|default:'indigo' }}-500, #4f46e5)">
+          {{ student.initials }}
+        </span>
+        <div>
+          <p class="font-display text-lg font-semibold text-ink">{{ student.name }}</p>
+          <p class="text-xs text-ink-mute">Age {{ student.age }} · {{ student.grade }} · {{ student.age_group_label }}</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-xs text-ink-soft mb-6">
+      Note: This unassigns the student from this classroom roster. Their assessment history and reports will be preserved under their account.
+    </p>
+
+    <form method="post" class="flex items-center justify-end gap-3 pt-2">
+      {% csrf_token %}
+      {% if classroom %}
+        <a href="{% url 'assessments:classroom_detail' classroom.id %}" class="btn btn-ghost">
+          Cancel &amp; Keep Student
+        </a>
+      {% else %}
+        <a href="{% url 'assessments:classroom_list' %}" class="btn btn-ghost">
+          Cancel
+        </a>
+      {% endif %}
+      <button type="submit" class="btn btn-danger shadow-lift">
+        <i data-lucide="user-x" class="h-4 w-4"></i> Unenroll Student
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

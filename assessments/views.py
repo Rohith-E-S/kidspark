@@ -9,10 +9,17 @@ from assessments.models import AssessmentSession, Choice, SessionResponse
 
 
 def _owned_child(request, child_id):
+    if request.user.is_staff:
+        return get_object_or_404(ChildProfile, id=child_id)
     return get_object_or_404(ChildProfile, id=child_id, parent=request.user)
 
 
 def _owned_session(request, session_id):
+    if request.user.is_staff:
+        return get_object_or_404(
+            AssessmentSession.objects.select_related('child'),
+            id=session_id,
+        )
     return get_object_or_404(
         AssessmentSession.objects.select_related('child'),
         id=session_id,

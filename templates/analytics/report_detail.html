@@ -69,7 +69,7 @@
       </div>
     </div>
 
-    <dl class="grid grid-cols-2 divide-ink/5 border-t border-ink/5 bg-paper/60 sm:grid-cols-4 sm:divide-x">
+    <dl class="grid grid-cols-2 divide-white/40 border-t border-white/60 bg-white/50 backdrop-blur-sm sm:grid-cols-4 sm:divide-x">
       <div class="px-5 py-4">
         <dt class="eyebrow">Puzzles correct</dt>
         <dd class="mt-1 font-display text-2xl font-semibold text-ink">{{ objective_correct }}<span class="text-base text-ink-mute">/{{ objective_answered }}</span></dd>
@@ -144,7 +144,7 @@
       </p>
       <ol class="mt-5 space-y-3">
         {% for activity in activities %}
-          <li class="flex gap-3 rounded-2xl bg-paper p-4">
+          <li class="flex gap-3 rounded-2xl bg-white/70 backdrop-blur-sm p-4 border border-white/60 shadow-sm">
             <span class="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-ink font-display text-xs font-semibold text-white">
               {{ forloop.counter }}
             </span>
@@ -241,7 +241,7 @@
     </div>
   </section>
 
-  <footer class="mt-10 rounded-2xl border border-ink/10 bg-paper px-6 py-5 text-sm text-ink-soft">
+  <footer class="mt-10 rounded-2xl border border-white/60 bg-white/70 backdrop-blur-sm px-6 py-5 text-sm text-ink-soft">
     <p class="font-semibold text-ink">How to read this report</p>
     <p class="mt-1">
       Scores are normalised percentages across the questions in each dimension, weighted by
