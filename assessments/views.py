@@ -37,7 +37,7 @@ def select_test(request):
 
     rows = []
     for child in children:
-        rows.append({
+        rows.aphttp://127.0.0.1:8000/pend({
             'child': child,
             'active_session': child.active_session,
             'completed_count': child.completed_count,
